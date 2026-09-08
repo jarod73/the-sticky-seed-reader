@@ -50,9 +50,18 @@ void DictionaryWordSelectActivity::onEnter() {
   // full-repaint path as the fallback.
   snapshot = makeUniqueNoThrow<uint8_t[]>(SNAPSHOT_CAPACITY);
   extractWords();
-  // Start on the middle row's word nearest mid-screen instead of top-left:
-  // any word on the page is then at most half a page of moves away.
+  // If invoked with a specific touch point, select and look up the tapped word immediately.
   if (!words.empty()) {
+    if (initialTouchX >= 0 && initialTouchY >= 0) {
+      const int hit = wordAt(initialTouchX, initialTouchY);
+      if (hit >= 0) {
+        selected = hit;
+        performLookup();
+        return;
+      }
+    }
+    // Start on the middle row's word nearest mid-screen instead of top-left:
+    // any word on the page is then at most half a page of moves away.
     const int initial = closestInRow(rowCount / 2, renderer.getScreenWidth() / 2);
     if (initial >= 0) selected = initial;
   }
@@ -114,14 +123,30 @@ void DictionaryWordSelectActivity::extractWords() {
 // point; -1 when the touch lands on no word. Boxes never overlap after the
 // slop grows them, at worst they touch, so first hit wins.
 int DictionaryWordSelectActivity::wordAt(const int x, const int y) const {
-  constexpr int SLOP = 4;  // matches the highlight box (+2) plus finger error
+  constexpr int SLOP = 6;  // matches the highlight box (+2) plus finger error
   for (int i = 0; i < static_cast<int>(words.size()); i++) {
     const WordBox& word = words[i];
     if (x >= word.x - SLOP && x < word.x + word.width + SLOP && y >= word.y - SLOP && y < word.y + lineHeight + SLOP) {
       return i;
     }
   }
-  return -1;
+  // Secondary pass: if vertical touch is within line height +/- 10px,
+  // find closest word in that line within 30px horizontal distance
+  int best = -1;
+  int bestDist = 30;
+  for (int i = 0; i < static_cast<int>(words.size()); i++) {
+    const WordBox& word = words[i];
+    if (y >= word.y - 10 && y < word.y + lineHeight + 10) {
+      int dist = 0;
+      if (x < word.x) dist = word.x - x;
+      else if (x > word.x + word.width) dist = x - (word.x + word.width);
+      if (dist < bestDist) {
+        bestDist = dist;
+        best = i;
+      }
+    }
+  }
+  return best;
 }
 
 // Index of the word in `row` whose horizontal center is closest to centerX;

@@ -30,19 +30,30 @@ HalStorage::HalStorage() {
   assert(storageMutex != nullptr);
 }
 
+class HalStorage::StorageLock {
+ public:
+  StorageLock() { xSemaphoreTakeRecursive(HalStorage::getInstance().storageMutex, portMAX_DELAY); }
+  ~StorageLock() { xSemaphoreGiveRecursive(HalStorage::getInstance().storageMutex); }
+};
+
 // begin() and ready() are only called from setup, no need to acquire mutex for them
 
 bool HalStorage::begin() { return SDCard.begin(); }
 
 bool HalStorage::ready() const { return SDCard.ready(); }
 
-// For the rest of the methods, we acquire the mutex to ensure thread safety
+bool HalStorage::checkCard() {
+  if (ready()) return true;
+  StorageLock lock;
+  return SDCard.begin();
+}
 
-class HalStorage::StorageLock {
- public:
-  StorageLock() { xSemaphoreTakeRecursive(HalStorage::getInstance().storageMutex, portMAX_DELAY); }
-  ~StorageLock() { xSemaphoreGiveRecursive(HalStorage::getInstance().storageMutex); }
-};
+bool HalStorage::remount() {
+  StorageLock lock;
+  return SDCard.begin();
+}
+
+// For the rest of the methods, we acquire the mutex to ensure thread safety
 
 void HalStorage::prepareForDeepSleep() {
   StorageLock lock;

@@ -11,10 +11,27 @@
 #include "CrossPointSettings.h"
 #include "components/UITheme.h"
 
+#if FREEINK_CAP_BUZZER
+#include <Buzzer.h>
+#endif
+
 namespace fui = freeink::ui;
 
 void MappedInputManager::update() const {
   gpio.update();
+#if FREEINK_CAP_BUZZER
+  float dummyX = 0.0f;
+  float dummyY = 0.0f;
+  if (gpio.wasTouchDown(dummyX, dummyY)) {
+    static Buzzer buzzer;
+    static bool buzzerInit = false;
+    if (!buzzerInit) {
+      buzzer.begin();
+      buzzerInit = true;
+    }
+    buzzer.click(2400, 10);
+  }
+#endif
   for (uint8_t value = 0; value <= static_cast<uint8_t>(Button::ScreenDown); ++value) {
     if (!isPressed(static_cast<Button>(value))) longPressFiredButtons &= ~(1u << value);
   }
@@ -305,7 +322,20 @@ bool MappedInputManager::wasPowerConfirmClick() const {
 }
 #endif
 
+void MappedInputManager::injectPress(const Button button) const {
+  injectedPressedMask |= (1u << static_cast<uint8_t>(button));
+}
+
+void MappedInputManager::injectRelease(const Button button) const {
+  injectedReleasedMask |= (1u << static_cast<uint8_t>(button));
+}
+
 bool MappedInputManager::wasPressed(const Button button) const {
+  const uint32_t bit = 1u << static_cast<uint8_t>(button);
+  if (injectedPressedMask & bit) {
+    injectedPressedMask &= ~bit;
+    return true;
+  }
   if (button == Button::Back && wasBackGesture()) return true;
 #if FREEINK_CAP_TOUCH
   if (button == Button::Confirm && wasPowerConfirmClick()) return true;
@@ -314,6 +344,11 @@ bool MappedInputManager::wasPressed(const Button button) const {
 }
 
 bool MappedInputManager::wasReleased(const Button button) const {
+  const uint32_t bit = 1u << static_cast<uint8_t>(button);
+  if (injectedReleasedMask & bit) {
+    injectedReleasedMask &= ~bit;
+    return true;
+  }
   if (button == Button::Back && wasBackGesture()) return true;
 #if FREEINK_CAP_TOUCH
   if (button == Button::Confirm && wasPowerConfirmClick()) return true;

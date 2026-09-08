@@ -31,6 +31,8 @@
 #include "OpdsServerStore.h"
 #include "RecentBooksStore.h"
 #include "SdCardFontSystem.h"
+#include "WifiCredentialStore.h"
+#include "network/CloudCredentialStore.h"
 #include "activities/Activity.h"
 #include "activities/ActivityManager.h"
 #include "activities/settings/SdFirmwareUpdateActivity.h"
@@ -40,6 +42,7 @@
 #include "platform/UsbSerialJtagHandoff.h"
 #include "util/ButtonNavigator.h"
 #include "util/ScreenshotUtil.h"
+#include "util/UsbSerialCompanion.h"
 
 GfxRenderer renderer(display);
 MappedInputManager mappedInputManager(gpio, renderer);
@@ -398,10 +401,14 @@ void setup() {
   // SD Card Initialization
   // We need 6 open files concurrently when parsing a new chapter
   if (!Storage.begin()) {
+#if FREEINK_DEVICE_STICKY
+    LOG_INF("MAIN", "MicroSD card not detected at boot; will probe dynamically upon card insertion");
+#else
     LOG_ERR("MAIN", "SD card initialization failed");
     setupDisplayAndFonts(isSilentReboot);
     activityManager.goToFullScreenMessage("SD card error", EpdFontFamily::BOLD);
     return;
+#endif
   }
 
   HalSystem::checkPanic();
@@ -427,6 +434,8 @@ void setup() {
   I18N.setLanguage(static_cast<Language>(SETTINGS.language));
   KOREADER_STORE.loadFromFile();
   OPDS_STORE.loadFromFile();
+  WIFI_STORE.loadFromFile();
+  CLOUD_CREDENTIALS.loadFromFile();
   UITheme::getInstance().reload();
   ButtonNavigator::setMappedInputManager(mappedInputManager);
 
@@ -610,22 +619,12 @@ void loop() {
     lastMemPrint = millis();
   }
 
-  // Handle incoming serial commands,
+  // Handle incoming serial commands (WebSerial / USB companion / CLI)
   // nb: we use logSerial from logging to avoid deprecation warnings
   if (logSerial.available() > 0) {
-    String line = logSerial.readStringUntil('\n');
-    if (line.startsWith("CMD:")) {
-      String cmd = line.substring(4);
-      cmd.trim();
-      if (cmd == "SCREENSHOT") {
-        const uint32_t bufferSize = display.getBufferSize();
-        logSerial.printf("SCREENSHOT_START:%d\n", bufferSize);
-        uint8_t* buf = display.getFrameBuffer();
-        logSerial.write(buf, bufferSize);
-        logSerial.printf("SCREENSHOT_END\n");
-      }
-    }
+    UsbSerialCompanion::handleSerial(logSerial, renderer, mappedInputManager);
   }
+  UsbSerialCompanion::update();
 
   // Check for any user activity (button press or release) or active background work
   static unsigned long lastActivityTime = millis();

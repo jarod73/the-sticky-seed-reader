@@ -1,10 +1,36 @@
 #pragma once
 
 #include <cstddef>
+#include <cstdlib>
 #include <memory>
 #include <new>
 #include <type_traits>
 #include <utility>
+
+#if defined(ESP32)
+#include <esp_heap_caps.h>
+#endif
+
+// Allocates from external SPIRAM/PSRAM when available, falling back to internal DRAM.
+inline void* psram_malloc(size_t size) {
+#if defined(BOARD_HAS_PSRAM) && defined(ESP32)
+  void* ptr = heap_caps_malloc(size, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+  if (ptr) return ptr;
+#endif
+  return malloc(size);
+}
+
+inline void* psram_calloc(size_t n, size_t size) {
+#if defined(BOARD_HAS_PSRAM) && defined(ESP32)
+  void* ptr = heap_caps_calloc(n, size, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+  if (ptr) return ptr;
+#endif
+  return calloc(n, size);
+}
+
+inline void psram_free(void* ptr) {
+  free(ptr);
+}
 
 // Nothrow versions of std::make_unique. Return nullptr on allocation failure
 // instead of calling abort() (the default when exceptions are disabled on ESP32).

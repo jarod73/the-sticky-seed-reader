@@ -1,17 +1,18 @@
-# CrossPoint Reader Development Guide
+# CrossPoint Reader Development Guide (reTerminal Sticky Edition)
 
-Project: Open-source e-reader firmware for Xteink X4 (ESP32-C3)
-Mission: Provide a lightweight, high-performance reading experience focused on EPUB rendering on constrained hardware.
+Project: Open-source e-reader and ambient intelligence firmware for Seeed Studio reTerminal Sticky (ESP32-S3)
+Mission: Provide a high-performance, responsive reading, note-taking, and ambient display experience leveraging ESP32-S3 dual-core compute, 8MB Octal PSRAM, 32MB Flash, GT911 touch, and onboard environmental/audio sensors.
 
 ## AI Agent Identity and Cognitive Rules
 
 * Role: Senior Embedded Systems Engineer (ESP-IDF/Arduino-ESP32 specialized).
-* Primary Constraint: 380KB RAM is the hard ceiling. Stability is non-negotiable.
+* Primary Target: ESP32-S3R8 (Dual-Core Xtensa LX7 @ 240MHz, 8MB Octal PSRAM, 32MB Flash).
+* Stability & Memory Safety: Production stability is non-negotiable. While 8MB PSRAM enables offscreen pre-rendering and rich caches, SRAM (~512KB) must be guarded against heap fragmentation.
+* Shared SPI Bus Safety: The SSD1677 display and SD Card share SPI bus pins (GPIO13 SCK, GPIO14 MOSI). All SD card transactions MUST go through `HalStorage` (`StorageLock` / `storageMutex`) to prevent bus collision.
+* Dual Storage Architecture: The system features 18MB onboard SPIFFS flash and MicroSD with dynamic hot-plug auto-detection. The firmware must boot cleanly and remain fully functional even if no SD card is inserted.
 * Evidence-Based Reasoning: Before proposing a change, you MUST cite the specific file path and line numbers that justify the modification.
-* Anti-Hallucination: Do not assume the existence of libraries or ESP-IDF functions. If you are unsure of an API's availability for the ESP32-C3 RISC-V target, check the freeink-sdk source or the FreeInk SDK docs (https://freeink.org/llms.txt for an LLM-readable index) first.
-* No Unfounded Claims: Do not claim performance gains or memory savings without explaining the technical mechanism (e.g., DRAM vs IRAM usage).
-* Resource Justification: You must justify any new heap allocation (new, malloc, std::vector) or explain why a stack/static alternative was rejected.
-* Verification: After suggesting a fix, instruct the user on how to verify it (e.g., monitoring heap via Serial or checking a specific cache file).
+* Resource Justification: Justify new heap allocations. Use `psram_malloc` / PSRAM buffers for large caches (fonts, pre-rendered framebuffers, audio buffers) and keep SRAM free for FreeRTOS stacks and fast IRAM execution.
+* Verification: After suggesting a fix, instruct the user on how to verify it (e.g., serial log monitoring, heap telemetry via `UsbSerialCompanion`, or specific export files).
 
 ---
 
@@ -33,6 +34,7 @@ uname -s
 
 - **Windows (Git Bash)**: Unix commands, `C:\` paths in Windows but `/` in bash, limited glob (use `find`+`xargs`)
 - **Linux/WSL**: Full bash, Unix paths, native glob support
+- **macOS (Darwin)**: Standard zsh/bash, BSD tools, Homebrew platformio integration
 
 **Cross-Platform Code Formatting**:
 
@@ -48,26 +50,38 @@ Never invoke or probe `clang-format` directly. The repository wrapper is the onl
 
 ### Hardware Specs
 
-* MCUs: ESP32-C3 (single-core RISC-V @ 160MHz) and ESP32-S3 (`sticky`, dual-core Xtensa LX7)
-* RAM: ~380KB usable on ESP32-C3 (VERY LIMITED - primary project constraint)
-  * **NO PSRAM on C3**.
-  * **Single Buffer Mode**: Only ONE 48KB framebuffer (not double-buffered)
-* Flash: 16MB (Instruction storage and static data)
-* Display: 800x480 E-Ink (Slow refresh, monochrome, 1-2s full update)
+* MCU: ESP32-S3R8 (dual-core Xtensa LX7 @ 240MHz)
+* RAM: 512KB SRAM + 8MB Octal PSRAM (high-speed OPI mode)
+  * Pre-rendered page caches, decompressed font glyph caches, and audio recordings live in PSRAM.
+  * Fast SRAM reserved for display framebuffer blitting, stack frames, and DMA buffers.
+* Flash: 32MB Octal Flash (Dual 6.5MB OTA partitions + 18MB SPIFFS data partition)
+* Display: 3.97" 800x480 E-Ink (SSD1677 controller) with Goodix GT911 Capacitive Touch
   * Framebuffer: 48,000 bytes (800 × 480 ÷ 8)
-* Storage: SD Card (Used for books and aggressive caching)
+* Storage: Dual-Storage Resilience
+  * Internal: 18MB SPIFFS partition for offline standalone books, state, and settings
+  * External: MicroSD Card slot with hot-plug insertion/ejection detection
+* Audio & Sensors:
+  * PDM Microphone (16kHz 16-bit mono voice recording)
+  * Piezo Buzzer (auditory alerts & feedback)
+  * Sensirion SHT40 (precision temperature & relative humidity)
+  * TI BQ27220 (fuel gauge with % state of charge, current mA, voltage, temperature)
+  * PCF8563 RTC (battery-backed real-time clock)
+  * LSM6DS3TR-C 6-axis IMU (accelerometer / gyroscope for orientation detection)
+* Connectivity & Companion:
+  * High-Speed USB Serial Companion protocol (`UsbSerialCompanion`)
+  * Wi-Fi 802.11 b/g/n & BLE 5.0 (supporting BLE wireless page-turner rings)
 
 ### The Resource Protocol
 
-1. Stack Safety: Limit local function variables to < 256 bytes. The ESP32-C3 default stack is small; use std::unique_ptr or static pools for larger buffers.
-2. Heap Fragmentation: Avoid repeated new/delete in loops. Allocate buffers once during onEnter() and reuse them.
-3. Flash Persistence: Large constant data (UI strings, lookup tables) MUST be marked static const to stay in Flash (Instruction Bus), freeing DRAM.
-4. String Policy: Prohibit std::string and Arduino String in hot paths. Use std::string_view for read-only access and snprintf with fixed char[] buffers for construction.
-5. UI Strings: All user-facing text must use the `tr()` macro (e.g., `tr(STR_LOADING)`) for i18n support. Never hardcode UI strings directly. For the avoidance of doubt, logging messages (LOG_DBG/LOG_ERR) can be hardcoded, but user-facing text must use `tr()`.
-6. `constexpr` First: Compile-time constants and lookup tables must be `constexpr`, not just `static const`. This moves computation to compile time, enables dead-branch elimination, and guarantees flash placement. Use `static constexpr` for class-level constants.
-7. `std::vector` Pre-allocation: Always call `.reserve(N)` before any `push_back()` loop. Each growth event allocates a new block (2×), copies all elements, then frees the old one — three heap operations that fragment DRAM. When the final size is unknown, estimate conservatively.
-8. SD Persistence Throttling: Settings, state, credentials, and other `PersistableStore` JSON files live on SD under `/.crosspoint/` through `HalStorage`; SPIFFS is not mounted. Guard redundant writes and debounce progress saves to avoid serialization, SD I/O, and `storageMutex` cost.
-9. `new` is not nothrow on ESP32: With `-fno-exceptions`, bare `new` that fails calls `abort()` — it does NOT return `nullptr`. Always use `new (std::nothrow)` and null-check the result, or use `makeUniqueNoThrow<T>()` from `lib/Memory/Memory.h`. Never write bare `new` for any fallible allocation.
+1. Stack Safety: Limit local function variables to < 256 bytes. Keep FreeRTOS task stacks between 2KB and 4KB.
+2. PSRAM Utilization: Use `psram_malloc` / `psram_calloc` for large temporary or persistent allocations (offscreen buffers, font caches, pre-rendering).
+3. Flash Persistence: Large constant data (UI strings, lookup tables) MUST be marked `static const` or `constexpr` to stay in Flash (Instruction Bus).
+4. String Policy: Prohibit unbounded `std::string` and Arduino `String` allocations in hot paths. Use `std::string_view` for read-only access and `snprintf` with fixed `char[]` buffers for construction.
+5. UI Strings: All user-facing text must use the `tr()` macro (e.g., `tr(STR_LOADING)`) for i18n support.
+6. `constexpr` First: Compile-time constants and lookup tables must be `constexpr`, not just `static const`.
+7. `std::vector` Pre-allocation: Always call `.reserve(N)` before any `push_back()` loop.
+8. Shared SPI Serialization: Always use `HalStorage` or `StorageLock` for SD card I/O to avoid bus contention with the E-Ink display on the shared SPI bus.
+9. `new` is not nothrow on ESP32: With `-fno-exceptions`, bare `new` that fails calls `abort()`. Always use `new (std::nothrow)` and null-check, or use `makeUniqueNoThrow<T>()` from `lib/Memory/Memory.h`.
 
 ---
 
@@ -222,7 +236,7 @@ if (Storage.openFileForRead("MODULE", "/path/to/file.bin", file)) {
 * Smart Pointers: Prefer std::unique_ptr. 
 * RAII: Use destructors for cleanup. Call `vTaskDelete()` explicitly for deterministic task release. Do NOT call `file.close()` on local `FsFile` variables — `DESTRUCTOR_CLOSES_FILE=1` handles it at scope exit (see Critical Build Flags).
 
-### ESP32-C3 Platform Pitfalls
+### ESP32-S3 Platform Pitfalls & Best Practices
 
 #### `std::string_view` and Null Termination
 
@@ -271,15 +285,12 @@ static DRAM_ATTR uint32_t isrEventFlags = 0;
 | Task → task                     | `xSemaphoreTake()` / mutex                         |
 | Simple flag (single writer ISR) | `volatile bool` + `portENTER_CRITICAL_ISR()`       |
 
-#### RISC-V Alignment
+#### Memory Alignment Safety
 
-ESP32-C3 faults on unaligned multi-byte loads. Never cast a `uint8_t*` buffer to a wider pointer type and dereference it directly. Use `memcpy` for any unaligned read:
+While ESP32-S3 Xtensa supports unaligned memory access in hardware, defensive binary parsing should avoid raw casts of unaligned byte pointers. Always use `memcpy` for parsing binary cache blobs or serialized headers:
 
 ```cpp
-// WRONG — faults if buf is not 4-byte aligned:
-uint32_t val = *reinterpret_cast<const uint32_t*>(buf);
-
-// CORRECT:
+// DEFENSIVE PATTERN:
 uint32_t val;
 memcpy(&val, buf, sizeof(val));
 ```

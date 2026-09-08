@@ -11,9 +11,12 @@
 
 #include "CrossPointSettings.h"
 #include "OpdsServerStore.h"
+#include "ambient/MorningNewspaperActivity.h"
 #include "boot_sleep/BootActivity.h"
 #include "boot_sleep/SleepActivity.h"
 #include "browser/OpdsBookBrowserActivity.h"
+#include "browser/ReadabilityBrowserActivity.h"
+#include "browser/WikipediaLookupActivity.h"
 #include "home/CrashActivity.h"
 #include "home/FileBrowserActivity.h"
 #include "home/HomeActivity.h"
@@ -260,6 +263,18 @@ void ActivityManager::goToBrowser() {
   } else {
     replaceActivity(std::make_unique<OpdsServerListActivity>(renderer, mappedInput, true));
   }
+}
+
+void ActivityManager::goToWebBrowser(std::string url) {
+  replaceActivity(std::make_unique<ReadabilityBrowserActivity>(renderer, mappedInput, std::move(url)));
+}
+
+void ActivityManager::goToMorningBriefing() {
+  replaceActivity(std::make_unique<MorningNewspaperActivity>(renderer, mappedInput));
+}
+
+void ActivityManager::goToWikipedia(std::string term) {
+  replaceActivity(std::make_unique<WikipediaLookupActivity>(renderer, mappedInput, std::move(term)));
 }
 
 void ActivityManager::goToReader(std::string path, const bool allowFastInitialRefresh) {

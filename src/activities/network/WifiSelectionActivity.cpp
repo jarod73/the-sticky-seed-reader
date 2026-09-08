@@ -531,6 +531,9 @@ void WifiSelectionActivity::checkConnectionStatus() {
     // we use SPI for both
     {
       RenderLock lock(*this);
+      if (!enteredPassword.empty()) {
+        WIFI_STORE.addCredential(selectedSSID, enteredPassword);
+      }
       WIFI_STORE.setLastConnectedSsid(selectedSSID);
     }
 

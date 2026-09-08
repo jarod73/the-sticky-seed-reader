@@ -21,13 +21,19 @@
 #include <limits>
 #include <string>
 
+#include <HalClock.h>
+#include <HalPowerManager.h>
+#if FREEINK_CAP_TEMP_HUMIDITY
+#include <EnvironmentSensor.h>
+#endif
+
 #include "CrossPointSettings.h"
 #include "CrossPointState.h"
 #include "activities/reader/ReaderUtils.h"
 #include "components/UITheme.h"
 #include "fontIds.h"
-#include "images/Logo120.h"
 #include "images/MoonIcon.h"
+#include "images/StickySeedLogo120.h"
 
 namespace {
 
@@ -588,6 +594,45 @@ void SleepActivity::renderCustomSleepScreen() const {
   renderDefaultSleepScreen();
 }
 
+void SleepActivity::renderAmbientClimateWidget() const {
+  const auto pageWidth = renderer.getScreenWidth();
+  const auto pageHeight = renderer.getScreenHeight();
+
+  char banner[128] = {0};
+  size_t offset = 0;
+
+#if FREEINK_CAP_TEMP_HUMIDITY
+  EnvironmentSensor envSensor;
+  float tempC = 0.0f;
+  float humidityPct = 0.0f;
+  if (envSensor.begin() && envSensor.read(tempC, humidityPct)) {
+    offset += snprintf(banner + offset, sizeof(banner) - offset, "%.1f°C  %.0f%% RH", tempC, humidityPct);
+  }
+#endif
+
+  if (halClock.isAvailable()) {
+    char timeBuf[16] = {0};
+    if (halClock.formatTime(timeBuf, sizeof(timeBuf), SETTINGS.clockUtcOffsetQ, SETTINGS.clockFormat == 1)) {
+      if (offset > 0) {
+        offset += snprintf(banner + offset, sizeof(banner) - offset, "   •   %s", timeBuf);
+      } else {
+        offset += snprintf(banner + offset, sizeof(banner) - offset, "%s", timeBuf);
+      }
+    }
+  }
+
+  const uint16_t batteryPct = powerManager.getBatteryPercentage();
+  if (offset > 0) {
+    snprintf(banner + offset, sizeof(banner) - offset, "   •   %u%%", batteryPct);
+  } else {
+    snprintf(banner + offset, sizeof(banner) - offset, "Battery: %u%%", batteryPct);
+  }
+
+  const int bannerY = pageHeight - 32;
+  renderer.drawLine(24, bannerY - 10, pageWidth - 24, bannerY - 10);
+  renderer.drawCenteredText(SMALL_FONT_ID, bannerY + 2, banner);
+}
+
 // Sleep screens paint with a single HALF refresh (stock parity): the OEM X4
 // firmware's only clean refresh in normal operation is the single-pass 0xD7
 // sequence, used once for the sleep image. It never runs the multi-flash GC
@@ -597,9 +642,11 @@ void SleepActivity::renderDefaultSleepScreen() const {
   const auto pageHeight = renderer.getScreenHeight();
 
   renderer.clearScreen();
-  renderer.drawImage(Logo120, (pageWidth - 120) / 2, (pageHeight - 120) / 2, 120, 120);
-  renderer.drawCenteredText(UI_10_FONT_ID, pageHeight / 2 + 70, tr(STR_CROSSPOINT), true, EpdFontFamily::BOLD);
-  renderer.drawCenteredText(SMALL_FONT_ID, pageHeight / 2 + 95, tr(STR_SLEEPING));
+  renderer.drawImage(StickySeedLogo120, (pageWidth - 120) / 2, (pageHeight - 120) / 2 - 25, 120, 120);
+  renderer.drawCenteredText(UI_12_FONT_ID, pageHeight / 2 + 50, "The Sticky Seed Reader", true, EpdFontFamily::BOLD);
+  renderer.drawCenteredText(SMALL_FONT_ID, pageHeight / 2 + 75, tr(STR_SLEEPING));
+
+  renderAmbientClimateWidget();
 
   // Make sleep screen dark unless light is selected in settings
   if (SETTINGS.sleepScreen != CrossPointSettings::SLEEP_SCREEN_MODE::LIGHT) {

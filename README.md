@@ -1,287 +1,165 @@
-# CrossPoint Reader
+# The Sticky Seed Reader
 
-[![Fund contributors](https://img.shields.io/badge/%F0%9F%91%91_Fund_contributors-royalty.dev-BB953A?style=for-the-badge&labelColor=1a1a1a)](https://app.royalty.dev/crosspoint-reader/crosspoint-reader)
+[![Firmware](https://img.shields.io/badge/Firmware-ESP32--S3R8-00979D?style=for-the-badge&logo=espressif&logoColor=white)](https://www.seeedstudio.com)
+[![Storage](https://img.shields.io/badge/Storage-32MB_Flash_+_8MB_Octal_PSRAM-orange?style=for-the-badge)](https://www.seeedstudio.com)
+[![Display](https://img.shields.io/badge/Display-3.97"_800x480_E--Ink_Touch-blue?style=for-the-badge)](https://www.seeedstudio.com)
+[![License](https://img.shields.io/badge/License-GPL_v3-green?style=for-the-badge)](LICENSE)
 
-CrossPoint is open-source e-reader firmware - community-built, fully hackable, free forever. It's maintained by a growing community of developers and readers who believe your device should do what you want - not what a manufacturer decided for you.
+**The Sticky Seed Reader** is an open-source, high-performance connected e-reader and ambient intelligence firmware engineered exclusively for the **Seeed Studio reTerminal Sticky** (ESP32-S3).
 
-**Now running on:** ESP32C3-based Xteink [X4](https://www.xteink.com/products/xteink-x4) and [X3](https://www.xteink.com/products/xteink-x3).
-
-![CrossPoint Reader running on Xteink device](./docs/images/cover.jpg)
-
-> If you're planning to buy an Xteink device, consider purchasing an **X3/X4 Developer Edition** through https://crosspointreader.com. CrossPoint receives a small share of each sale, helping fund development costs.
-
-## What can CrossPoint do?
-
-- **Reader engine**: EPUB 2/3 rendering with embedded-style option, image handling, hyphenation, kerning, chapter navigation, footnotes, bookmarks, dictionary lookups ([StarDict](docs/dictionary.md)), go-to-percent, auto page turn, orientation control, focus reading, KOReader progress sync and more. 
-
-- **Various formats**: native handling for `.epub`, `.xtc/.xtch`, `.txt`, and `.bmp`.
-
-- **Screenshots.**
-
-- **Custom fonts**: install your favorite fonts on the SD card.
-
-- **Tilt page turn (X3 only)**.
-
-- **Library workflow**: folder browser, hidden-file toggle, long-press delete, recent books, SD-cache management.
-
-- **Wireless workflows**:
-  
-  - File transfer web UI
-  - EPUB Optimizer
-  - Web settings UI/API (edit many device settings from browser)
-  - WebSocket fast uploads
-  - WebDAV handler
-  - AP mode (hotspot) and STA mode (join existing Wi-Fi), both with QR helpers
-  - Calibre wireless connect flow
-  - OPDS browser with saved servers (up to 8), search, pagination, and direct download
-  - OTA update checks and installs from GitHub releases
-
-- **Customization**: multiple themes (Classic, Lyra, Lyra Extended, RoundedRaff), sleep screen modes including transparent overlays, front/side button remapping, status bar controls, power-button behavior, refresh cadence, and more.
-
-- **Localization**: 24 UI languages and counting. RTL support.
-
-### Coming soon:
-
-- More themes.
-
-- Much more! stay tuned.
+Unlike generic multi-device firmwares, **The Sticky Seed Reader** is purpose-built to squeeze every ounce of capability from the reTerminal Sticky's rich silicon ecosystem—combining dual-core 240MHz Xtensa LX7 compute, 8MB Octal PSRAM, 32MB Flash, Goodix capacitive touch, environmental sensing, and digital audio.
 
 ---
 
-## USB-locked devices (Xteink Unlocker)
+## 🍃 Hardware Architecture & Platform Integration
 
-Some Xteink units purchased from third-party stores (e.g. AliExpress) ship with USB flashing locked from the factory.
-If your device is locked, you will need to use the **Xteink Unlocker** tool available at
-https://crosspointreader.com/#unlock-tool before you can flash CrossPoint.
+The Sticky Seed Reader is tailored specifically for the following hardware specifications:
 
-**You do not need this tool if you bought your device directly from xteink.com.** Those units are not locked.
-
-**Not sure if your device is locked?** Power it on, connect the USB-C cable, and try flashing via the web flasher first (see
-[Install firmware](#install-firmware) below). If the browser's serial device picker does not show your device, try a different
-USB port or browser before assuming the device is locked. Only reach for the unlocker if the device still doesn't appear.
-
-> ### ⚠️ WARNING: READ THIS BEFORE USING THE UNLOCKER ⚠️
-> 
-> **The only officially supported firmwares in the unlock tool are CrossPoint and CrossInk.**
-> 
-> Flashing any other firmware on a USB-locked device may **permanently brick the device** or leave it **permanently
-> stuck on that firmware with no recovery path**. Once USB flashing is re-locked, your only way back is via OTA, and if
-> the firmware you flashed doesn't support OTA, **there is no way out**.
-
-## Install firmware
-
-### Web installer (recommended)
-
-1. Connect your device to your computer via USB-C and wake/unlock the device
-2. Go to https://crosspointreader.com/#flash-tools, select device (X3 or X4), and choose an official CrossPoint release.
-
-### Web installer (specific version)
-
-1. Connect your device to your computer via USB-C and wake/unlock the device
-2. Download a `firmware.bin` from [Releases](https://github.com/crosspoint-reader/crosspoint-reader/releases), local build, or continuous integration artifact.
-3. Go to https://crosspointreader.com/#flash-tools, select device (X3 or X4), click "Custom .bin" and upload a `firmware.bin`.
-
-### Revert to Official Firmware
-
-To revert to the official firmware, you can also flash the latest official firmware using https://crosspointreader.com/#flash-tools.
-
-### Command line
-
-1. Install [`esptool`](https://github.com/espressif/esptool):
-
-```bash
-pip install esptool
-```
-
-2. Download `firmware.bin` from the [releases page](https://github.com/crosspoint-reader/crosspoint-reader/releases).
-3. Connect your device via USB-C.
-4. Find the device port. On Linux, run `dmesg` after connecting. On macOS:
-
-```bash
-log stream --predicate 'subsystem == "com.apple.iokit"' --info
-```
-
-5. Flash:
-
-```bash
-esptool.py --chip esp32c3 --port /dev/ttyACM0 --baud 921600 write_flash 0x10000 /path/to/firmware.bin
-```
-
-Adjust `/dev/ttyACM0` to match your system.
-
-### Manual
-
-See [Development quick start](#development-quick-start) below.
+| Component | Specification | Integration in Firmware |
+|---|---|---|
+| **MCU** | ESP32-S3R8 (Dual-Core Xtensa LX7 @ 240MHz) | Dual-core task distribution: Core 0 for async WiFi, TLS & I/O; Core 1 for e-ink rendering & display blitting |
+| **Memory** | **8MB Octal PSRAM** (OPI high-speed) + 512KB SRAM | Pre-rendered page caches, font decompression tables, network buffers, and voice recordings live in PSRAM, keeping SRAM free |
+| **Flash** | **32MB Octal Flash** | Custom partition layout: dual 6.5MB OTA partitions + **18MB onboard SPIFFS** data partition |
+| **Display** | 3.97" 800×480 E-Ink panel (SSD1677) | Single-buffer mode with hardware-tuned partial (~400ms) and full refresh waveforms, single-pass differential clearing |
+| **Touch** | Goodix GT911 Capacitive Touch | Touch word selection, finger-tap page zones, full-screen swipe navigation, on-screen keyboard |
+| **Battery Gauge** | TI BQ27220 I²C Fuel Gauge | Accurate state of charge (%), real-time current draw ($\text{mA}$), voltage, and estimated time-to-empty |
+| **Climate Sensor** | Sensirion SHT40 | Ambient room temperature ($\pm0.2^\circ\text{C}$) & relative humidity ($\pm1.8\%\text{RH}$) |
+| **Microphone** | Knowles PDM Digital Mic | 16kHz 16-bit mono voice recording directly to PSRAM WAV buffer |
+| **Audio / Haptics**| Piezo Buzzer | 10ms 2.4kHz acoustic micro-clicks on touch tap feedback |
+| **Real-Time Clock**| PCF8563 RTC | Battery-backed clock with scheduled alarm wakeups for morning briefings |
+| **Motion Sensor** | LSM6DS3TR-C 6-Axis IMU | Tilt detection & orientation awareness |
+| **Dual Storage** | 18MB Flash + MicroSD Slot | Shared SPI serialization (`HalStorage` mutex) with dynamic hot-plug card auto-detection |
 
 ---
 
-## Custom SD-card fonts
+## 🔄 Relationship to CrossPoint Reader
 
-Convert your own TTF/OTF files into `.cpfont` files that load from the SD card. No firmware reflash is needed.
+**The Sticky Seed Reader** is a specialized, hardware-focused evolution of the open-source CrossPoint Reader project.
 
-1. Go to https://crosspointreader.com/fonts and open the "SD-card font builder" form.
-2. Upload up to four styles (regular, bold, italic, bold-italic), set the family name, point sizes, and Unicode range.
-3. Download the generated `.cpfont` files.
-4. Copy them to your SD card under `/fonts/YourFont/` (or `/.fonts/YourFont/` to hide the folder).
-5. Select the font on the device from the font settings.
+### What Carried Over from CrossPoint:
+- **Core EPUB Engine**: EPUB 2/3 rendering with hyphenation, kerning, image handling, embedded style support, footnotes, and bookmarks.
+- **Multi-Format Support**: Native handling for `.epub`, `.txt`, `.xtc/.xtch`, and `.bmp`.
+- **StarDict Offline Dictionary**: On-device dictionary lookup definitions from `.idx` / `.dict.dz` packages.
+- **Visual Design Themes**: Classic, Lyra, Lyra Extended, and RoundedRaff themes with 30+ UI translations.
+- **Wireless Library & Web Portal**: Browser-based file manager, Calibre wireless sync, and OPDS catalog client.
 
-Conversion runs the firmware repo's `lib/EpdFont/scripts/fontconvert_sdcard.py` script unmodified, so output matches a local host build.
+### What is Brand New in The Sticky Seed Reader:
+- 📰 **The Daily Sticky (Morning Newspaper & Ambient Briefing)**:
+  - Broad-sheet vintage two-column e-paper newspaper layout with headline story and wire briefs.
+  - Live outdoor weather forecasts from **Open-Meteo** (no API key required).
+  - Real-time room climate banner from the onboard **SHT40** sensor & **BQ27220** battery gauge.
+  - Live RSS/Atom news wire with one-tap touch launch into full articles.
+  - PCF8563 RTC scheduled alarm wakeup for fresh morning news with zero idle battery drain.
+- 🌐 **Distraction-Free "Readability" Web Browser & Wikipedia**:
+  - Linear single-pass HTML article extractor stripping ads, navbars, sidebars, scripts, and tracking noise.
+  - Paginated e-ink reading with tap-to-turn zones and offline article saving.
+  - Instant encyclopedic summary lookup cards via the **Wikipedia REST API** (zero API key required).
+- 🔤 **Adjustable System UI Text Size & Font Scaling**:
+  - 4 selectable system UI font tiers: **Small**, **Medium**, **Large (Default)**, and **Extra Large**.
+  - Dynamic FreeInkUI layout engine that recalculates row heights, padding, header dimensions, and touch bounds from font line metrics.
+- 📶 **Indestructible Wi-Fi & Cloud NVS Dual-Persistence**:
+  - Automatically mirrors Wi-Fi credentials and cloud API tokens to onboard Flash Non-Volatile Storage (NVS).
+  - Seamlessly survives firmware updates, reboots, and SD card swaps without losing passwords.
+- ⚡ **Zero-Latency PSRAM Pre-Rendering Engine**:
+  - Off-screen pre-rendering pipeline in 8MB PSRAM during the 400ms reading debounce window.
+  - Reduces page flip latency to `<1ms` via direct frame buffer `memcpy`.
+- 👆 **Capacitive Touch & Acoustic Micro-Click Feedback**:
+  - Upgraded touch word selection with dual-pass proximity targeting for finger taps.
+  - 10ms 2.4kHz acoustic tap feedback from the piezo buzzer on touch contact.
+  - Full touchscreen edge gestures and swipe-to-home / swipe-to-back navigation.
+- 🔄 **Direct GitHub OTA Updates**:
+  - Check for and install the latest firmware releases directly from the GitHub repository over Wi-Fi.
+- 🎓 **Offline Study & Note Export Suite**:
+  - **Anki Flashcard Export**: One-tap export of looked-up vocabulary to `/.crosspoint/export/anki/vocab_anki.tsv`.
+  - **Obsidian Markdown Export**: Export book notes, quotes, progress, and highlights to `/.crosspoint/export/notes/` with YAML frontmatter.
+- 🔌 **High-Speed USB Serial Companion Protocol**:
+  - 921,600 baud bidirectional USB-C protocol (`UsbSerialCompanion`) supporting WebSerial book drag-and-drop (`CMD:PUT`), JSON file listing (`CMD:LS`), telemetry streaming (`CMD:STATUS`), and synthetic input injection (`CMD:KEY`).
+- 🎙️ **Voice Recording Pipeline**:
+  - 16kHz 16-bit PDM digital microphone streaming to PSRAM with automatic RIFF WAV formatting.
+- 🛡️ **Dual-Storage Resilience & Hot-Plug Auto-Detection**:
+  - Boots and functions seamlessly using the 18MB internal SPIFFS partition if no SD card is present.
+  - Dynamically detects MicroSD card insertion and ejection on the fly with SPI mutex bus locking.
 
 ---
 
-## Documentation
-
-- [User Guide](./USER_GUIDE.md)
-- [Web server usage](./docs/webserver.md)
-- [Web server endpoints](./docs/webserver-endpoints.md)
-- [Project scope](./SCOPE.md)
-- [Contributing docs](./docs/contributing/README.md)
-- [Touch and UI development](./docs/contributing/touch-and-ui.md) - how to build new screens on the FreeInkUI activity bases (UiListActivity and friends), plus build envs for the non-Xteink touch devices
-
----
-
-## Development quick start
+## 🚀 Getting Started
 
 ### Prerequisites
+- [PlatformIO CLI](https://platformio.org/) (`pio`) or PlatformIO IDE in VS Code.
+- A **Seeed Studio reTerminal Sticky** connected via USB-C.
 
-- [pioarduino](https://github.com/pioarduino/pioarduino) or VS Code + pioarduino plugin
-- Python 3.8+
-- `clang-format` 21
-- USB-C cable supporting data transfer
-
-### Setup
+### Build & Flash Firmware
 
 ```bash
-git clone --recursive https://github.com/crosspoint-reader/crosspoint-reader
-cd crosspoint-reader
+# 1. Clone the repository
+git clone https://github.com/jarod73/crosspoint-reader-sticky.git "The-Sticky-Seed-Reader"
+cd "The-Sticky-Seed-Reader"
 
-# if cloned without --recursive:
-git submodule update --init --recursive
+# 2. Compile the sticky environment
+pio run -e sticky
+
+# 3. Flash to the connected reTerminal Sticky
+pio run -e sticky -t upload
 ```
 
-### Nix/NixOS
+### Partition Layout (`partitions_sticky.csv`)
 
-Nix/NixOS users can enter the development shell with either `nix develop` (flakes) or `nix-shell`:
-
-```bash
-nix develop -f nix
-# or
-nix-shell nix
 ```
-
-To flash a connected ESP32-C3 device, enable PlatformIO's udev rules in your NixOS configuration:
-
-```nix
-services.udev.packages = with pkgs; [ platformio-core.udev ];
+# Name,    Type, SubType, Offset,   Size,    Flags
+nvs,       data, nvs,     0x9000,   20K,
+otadata,   data, ota,     0xe000,   8K,
+app0,      app,  ota_0,   0x10000,  6656K,   # Active Firmware Slot
+app1,      app,  ota_1,   0x690000, 6656K,   # OTA Update Slot
+spiffs,    data, spiffs,  0xd10000, 18M,     # Onboard Standalone Storage
+coredump,  data, coredump,0x1f10000,64K,
 ```
-
-After rebuilding the system configuration, reconnect the device or reload udev rules.
-
-### Build / flash / monitor
-
-```bash
-pio run --target upload
-```
-
-### Contributor pre-PR checks
-
-```bash
-./bin/clang-format-fix
-pio check -e default
-pio run -e default
-```
-
-### Debugging
-
-After flashing the new features, it’s recommended to capture detailed logs from the serial port.
-
-First, make sure all required Python packages are installed:
-
-```python
-python3 -m pip install pyserial colorama matplotlib
-```
-
-After that run the script:
-
-```sh
-# For Linux
-# This was tested on Debian and should work on most Linux systems.
-python3 scripts/debugging_monitor.py
-
-# For macOS
-python3 scripts/debugging_monitor.py /dev/cu.usbmodem2101
-```
-
-Minor adjustments may be required for Windows.
 
 ---
 
-## Internals
+## 📖 Navigation & Controls
 
-CrossPoint Reader is pretty aggressive about caching data down to the SD card to minimise RAM usage. The ESP32-C3 only has ~380KB of usable RAM, so we have to be careful. A lot of the decisions made in the design of the firmware were based on this constraint.
+| Action | Touch Gesture | Hardware Buttons |
+|---|---|---|
+| **Turn Page Forward** | Tap Right 67% of screen / Swipe Left | Bottom Front Button / Side Down |
+| **Turn Page Back** | Tap Left 33% of screen / Swipe Right | Top Front Button / Side Up |
+| **Dictionary Lookup** | Long-press or tap any word | Confirm Button (on selected word) |
+| **Save to Anki** | Tap `[+Anki]` in definition header | Confirm Button in Dictionary |
+| **Open Web Article** | Tap any story in The Daily Sticky | Confirm Button |
+| **Reader Menu** | Tap top 20% margin | Left Button |
+| **Return / Home** | Swipe Down from top / Swipe Right | Back Button |
 
-### Data caching
+---
 
-The first time chapters of a book are loaded, they are cached to the SD card. Subsequent loads are served from the
-cache. This cache directory exists at `.crosspoint` on the SD card. The structure is as follows:
+## 🛠️ Project Structure
 
-```text
-.crosspoint/
-├── epub_<hash>/         # one directory per book, named by content hash
-│   ├── progress.bin     # reading position (chapter, page, etc.)
-│   ├── cover.bmp        # generated cover image
-│   ├── book.bin         # metadata: title, author, spine, TOC
-│   ├── css_rules.cache  # parsed CSS rule cache
-│   ├── img_*            # rendered image cache files
-│   └── sections/        # per-chapter layout cache
-│       ├── 0.bin
-│       ├── 1.bin
-│       └── ...
-├── settings.json        # device settings
-├── state.json           # resume/runtime state
-└── recent.json          # recent books list
+```
+.
+├── partitions_sticky.csv      # 32MB partition table (dual 6.5MB OTA + 18MB SPIFFS)
+├── platformio.ini             # PlatformIO build configuration
+├── freeink-sdk/               # Low-level display, touch, and peripheral drivers
+├── lib/
+│   ├── EpdFont/               # Compressed vector font glyph engine
+│   ├── Epub/                  # EPUB 2/3 parsing, layout, and styling
+│   ├── GfxRenderer/           # Single-buffer & PSRAM pre-render graphics engine
+│   ├── hal/                   # Hardware Abstraction Layer (Display, GPIO, Storage Lock)
+│   ├── I18n/                  # Internationalization string tables & translations
+│   └── Memory/                # PSRAM allocation helpers (makeUniqueNoThrow, psram_malloc)
+└── src/
+    ├── activities/
+    │   ├── ambient/           # MorningNewspaperActivity (The Daily Sticky)
+    │   ├── boot_sleep/        # BootActivity & SleepActivity (branded ambient climate)
+    │   ├── browser/           # ReadabilityBrowserActivity & WikipediaLookupActivity
+    │   ├── home/              # HomeActivity & FileBrowserActivity
+    │   ├── reader/            # EpubReaderActivity, Dictionary, Bookmarks
+    │   └── settings/          # SettingsActivity, OtaUpdateActivity, FontDownloadActivity
+    ├── components/            # UITheme, UIScale, FreeInkApp host bindings
+    ├── network/               # CloudHttpClient, CloudCredentialStore, HttpDownloader
+    └── util/                  # TextWrapUtils, ReadabilityExtractor, RssFeedParser, NoteExporter, VoiceRecorder
 ```
 
-Removing `/.crosspoint` clears all cached metadata and forces a full regeneration on next open. Book deletes, overwrites, and moves done through the firmware or web UI clear or re-key matching caches; manual SD-card edits may leave stale cache directories behind.
-
-For more details on the internal file structures, see the [file formats document](./docs/file-formats.md).
-
 ---
 
-## Contributing
+## 📄 License & Attribution
 
-Contributions are welcome. If you're new to the codebase, start with the [contributing docs](./docs/contributing/README.md). For things to work on, check the [ideas discussion board](https://github.com/crosspoint-reader/crosspoint-reader/discussions/categories/ideas) — leave a comment before starting so we don't duplicate effort.
-
-Everyone here is a volunteer, so please be respectful and patient. For governance and community expectations, see [GOVERNANCE.md](./GOVERNANCE.md).
-
----
-
-## Community forks
-
-One of the best things about open source is that anyone can take the code in a different direction. If you need something outside CrossPoint's [scope](./SCOPE.md), check out the community forks:
-
-- [CrossInk](https://github.com/uxjulia/CrossInk) — Typography and reading tracking: Bionic Reading (bolds word stems to create fixation points), guide dots between words, improved paragraph indents, and replaces the default fonts with ChareInk/Lexend/Bitter.
-
-- [papyrix-reader](https://github.com/bigbag/papyrix-reader) — Adds FB2 and MD format support. Actively maintained with Arabic script support. Custom themes via SD card.
-
-- ~~[crosspet](https://github.com/trilwu/crosspet) — A Vietnamese fork that adds a Tamagotchi-style virtual chicken that grows based on your reading milestones (pages read, streaks, care). Also: Flashcards, Weather, Pomodoro timer, and mini-games.~~ (Unmaintained)
-
-- [crosspoint-reader-cjk](https://github.com/aBER0724/crosspoint-reader-cjk) — Purpose-built for Chinese, Japanese, and Korean reading.
-
-- [inx](https://github.com/obijuankenobiii/inx) — Completely reimagines the user interface with tabbed navigation.
-
-- ~~[PlusPoint](https://github.com/ngxson/pluspoint-reader) — custom JS apps support.~~ (Unmaintained)
-
-- [crosspoint-reader-papers3](https://github.com/juicecultus/crosspoint-reader-papers3) — Crosspoint port for M5Stack Paper S3. 
-
-- [t5s3-reader](https://github.com/ShallowGreen123/t5s3-reader) — Crosspoint port for LilyGo T5 ePaper S3 / T5S3 4.7-inch e-paper device.
-
-**Note:** Many of these features will make their way into CrossPoint over time. We maintain a slower pace to ensure rock-solid stability and squash bugs before they reach your device.
-
-Want to build your own device? Be sure to check out the [de-link](https://github.com/iandchasse/de-link) project.
-
----
-
-CrossPoint Reader is **not affiliated with Xteink or any device manufacturer**.
-
-Huge shoutout to [diy-esp32-epub-reader](https://github.com/atomic14/diy-esp32-epub-reader), which inspired this project.
+- **Firmware**: Licensed under the GNU General Public License v3.0 ([GPL-3.0](LICENSE)).
+- **Upstream Credits**: Derived from the CrossPoint Reader project with deep modifications, hardware drivers, and connected intelligence features engineered specifically for Seeed Studio reTerminal Sticky hardware.

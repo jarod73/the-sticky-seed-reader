@@ -3,8 +3,69 @@
 #include <CredentialIntegrity.h>
 #include <Logging.h>
 #include <ObfuscationUtils.h>
+#include <Preferences.h>
 
 #include <algorithm>
+
+void WifiCredentialStore::syncToNvs() const {
+  Preferences prefs;
+  if (!prefs.begin("cp_wifi", false)) {
+    LOG_ERR("WCS", "Failed to open NVS for wifi persistence");
+    return;
+  }
+  JsonDocument doc;
+  toJson(doc);
+  String jsonStr;
+  serializeJson(doc, jsonStr);
+  prefs.putString("wifi_data", jsonStr);
+  prefs.end();
+  LOG_DBG("WCS", "Synced %zu WiFi credentials to NVS", credentials.size());
+}
+
+bool WifiCredentialStore::loadFromNvs() {
+  Preferences prefs;
+  if (!prefs.begin("cp_wifi", true)) {
+    return false;
+  }
+  String jsonStr = prefs.getString("wifi_data", "");
+  prefs.end();
+  if (jsonStr.isEmpty()) {
+    return false;
+  }
+  JsonDocument doc;
+  DeserializationError err = deserializeJson(doc, jsonStr);
+  if (err) {
+    LOG_ERR("WCS", "Failed to deserialize NVS wifi data: %s", err.c_str());
+    return false;
+  }
+  bool ok = fromJson(doc.as<JsonVariantConst>());
+  if (ok && !credentials.empty()) {
+    LOG_INF("WCS", "Restored %zu WiFi credentials from NVS backup", credentials.size());
+    // Mirror to SD card if present
+    PersistableStore<WifiCredentialStore>::saveToFile();
+  }
+  return ok;
+}
+
+bool WifiCredentialStore::saveToFile() const {
+  bool ok = PersistableStore<WifiCredentialStore>::saveToFile();
+  syncToNvs();
+  return ok;
+}
+
+bool WifiCredentialStore::loadFromFile() {
+  bool ok = PersistableStore<WifiCredentialStore>::loadFromFile();
+  if (!ok || credentials.empty()) {
+    // Attempt NVS recovery if SD file was missing or empty
+    if (loadFromNvs()) {
+      ok = true;
+    }
+  } else {
+    // We loaded successfully from SD; make sure NVS backup is kept in sync
+    syncToNvs();
+  }
+  return ok;
+}
 
 void WifiCredentialStore::toJson(JsonDocument& doc) const {
   std::lock_guard<std::mutex> lock(credentialMutex);

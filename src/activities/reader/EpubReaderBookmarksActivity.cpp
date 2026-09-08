@@ -6,6 +6,7 @@
 #include <algorithm>
 
 #include "../../util/BookmarkFile.h"
+#include "../../util/NoteExporter.h"
 #include "MappedInputManager.h"
 #include "components/UITheme.h"
 #include "components/UiAppHelpers.h"
@@ -126,6 +127,19 @@ bool EpubReaderBookmarksActivity::handleCustomInput() {
     requestUpdate();
     return true;
   }
+
+  int tx = 0;
+  int ty = 0;
+  if (!bookmarks.empty() && mappedInput.wasScreenTapped(tx, ty)) {
+    if (tx > renderer.getScreenWidth() - 130 && ty < 55) {
+      if (NoteExporter::exportObsidianMarkdown(epub ? epub->getTitle() : "Book", epub ? epub->getAuthor() : "", bookmarks)) {
+        GUI.drawPopup(renderer, "Notes Exported");
+        requestUpdate();
+      }
+      return true;
+    }
+  }
+
   return false;
 }
 
@@ -249,6 +263,11 @@ void EpubReaderBookmarksActivity::render(RenderLock&&) {
   const int titleX =
       contentX + (contentWidth - renderer.getTextWidth(UI_12_FONT_ID, tr(STR_BOOKMARKS), EpdFontFamily::BOLD)) / 2;
   renderer.drawText(UI_12_FONT_ID, titleX, 15 + contentY, tr(STR_BOOKMARKS), true, EpdFontFamily::BOLD);
+
+  if (!bookmarks.empty()) {
+    const int exportWidth = renderer.getTextWidth(UI_10_FONT_ID, "[Export]");
+    renderer.drawText(UI_10_FONT_ID, contentX + contentWidth - 20 - exportWidth, 15 + contentY, "[Export]");
+  }
 
   renderUi();
 

@@ -40,10 +40,16 @@ class WifiCredentialStore : public PersistableStore<WifiCredentialStore> {
 
   friend class PersistableStore<WifiCredentialStore>;
 
+  void syncToNvs() const;
+  bool loadFromNvs();
+
  public:
   static const char* getFilePath() { return "/.crosspoint/wifi.json"; }
   void toJson(JsonDocument& doc) const;
   bool fromJson(JsonVariantConst doc);
+
+  bool saveToFile() const;
+  bool loadFromFile();
 
   // Credential management
   bool addCredential(const std::string& ssid, const std::string& password);

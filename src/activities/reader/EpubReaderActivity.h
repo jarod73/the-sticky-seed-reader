@@ -149,7 +149,7 @@ class EpubReaderActivity final : public ReaderActivity {
   std::string moreRowName(int row) const;
   std::string moreRowValue(int row) const;
   void activateMoreRow(int row);
-  void openDictionaryWordSelect();
+  void openDictionaryWordSelect(int touchX = -1, int touchY = -1);
   bool launchKOReaderSync();
   unsigned long confirmLongPressThreshold() const;
   void toggleAutoPageTurn(uint8_t selectedPageTurnOption);
@@ -177,6 +177,20 @@ class EpubReaderActivity final : public ReaderActivity {
   std::string getBookThumbBmpPath() const override { return epub ? epub->getThumbBmpPath() : ""; }
   void renderBook() override;
   void onEndOfBookRendered() override;
+
+  struct PreRenderCache {
+    int spineIndex = -1;
+    int pageIndex = -1;
+    uint8_t orientation = 0;
+    uint32_t visibleTextOffset = 0;
+    std::vector<FootnoteEntry> footnotes;
+    std::vector<PageLink> links;
+    uint8_t* buffer = nullptr;
+    bool valid = false;
+  };
+  PreRenderCache preRenderCache;
+  void clearPreRenderCache();
+  void ensurePreRenderBuffer();
 
  public:
   explicit EpubReaderActivity(GfxRenderer& renderer, MappedInputManager& mappedInput, std::string bookPath,

@@ -148,9 +148,33 @@ void moveFinishedBookToReadFolder(const std::string& srcPath, const std::string&
 
 }  // namespace
 
+void EpubReaderActivity::clearPreRenderCache() {
+  preRenderCache.valid = false;
+  preRenderCache.spineIndex = -1;
+  preRenderCache.pageIndex = -1;
+  preRenderCache.footnotes.clear();
+  preRenderCache.links.clear();
+}
+
+void EpubReaderActivity::ensurePreRenderBuffer() {
+#if defined(BOARD_HAS_PSRAM)
+  if (!preRenderCache.buffer) {
+    preRenderCache.buffer = static_cast<uint8_t*>(psram_malloc(renderer.getBufferSize()));
+    if (preRenderCache.buffer) {
+      LOG_DBG("ERS", "Allocated %u byte pre-render buffer in PSRAM", (unsigned)renderer.getBufferSize());
+    }
+  }
+#endif
+}
+
 EpubReaderActivity::~EpubReaderActivity() {
   ImageBlock::setExtractor(nullptr, nullptr);
   discardOverlayPage();  // free the overlay's page snapshot if one is held
+  clearPreRenderCache();
+  if (preRenderCache.buffer) {
+    psram_free(preRenderCache.buffer);
+    preRenderCache.buffer = nullptr;
+  }
 
   if (footnoteDepth > 0 && epub) {
     const SavedPosition& origin = savedPositions[0];
@@ -292,7 +316,7 @@ void EpubReaderActivity::showBuildPopup(GfxRenderer& renderer, int& pagesUntilFu
   buildPopupPending = false;
 }
 
-void EpubReaderActivity::openDictionaryWordSelect() {
+void EpubReaderActivity::openDictionaryWordSelect(int touchX, int touchY) {
   if (SETTINGS.dictionaryName[0] == '\0') {
     showDictionaryMessage = true;
     dictionaryMessageTime = millis();
@@ -310,7 +334,8 @@ void EpubReaderActivity::openDictionaryWordSelect() {
   orientedMarginLeft += SETTINGS.screenMargin;
 
   startActivityForResult(std::make_unique<DictionaryWordSelectActivity>(renderer, mappedInput, std::move(page),
-                                                                        orientedMarginLeft, orientedMarginTop),
+                                                                        orientedMarginLeft, orientedMarginTop,
+                                                                        touchX, touchY),
                          [this](const ActivityResult&) { requestUpdate(); });
 }
 
@@ -349,6 +374,38 @@ void EpubReaderActivity::loop() {
             scope.endScanAndPrewarm();
             LOG_DBG("ERS", "Idle prewarm: page %d in %lums", nextPage, millis() - t0);
           }
+#if defined(BOARD_HAS_PSRAM)
+          ensurePreRenderBuffer();
+          if (preRenderCache.buffer && !p->hasImages()) {
+            const auto tPre = millis();
+            int orientedMarginTop, orientedMarginRight, orientedMarginBottom, orientedMarginLeft;
+            renderer.getOrientedViewableTRBL(&orientedMarginTop, &orientedMarginRight, &orientedMarginBottom,
+                                             &orientedMarginLeft);
+            orientedMarginTop += SETTINGS.screenMargin;
+            orientedMarginLeft += SETTINGS.screenMargin;
+
+            // Render to off-screen PSRAM pre-render buffer
+            uint8_t* mainBuffer = renderer.setFrameBuffer(preRenderCache.buffer);
+            renderer.clearScreen();
+            p->render(renderer, SETTINGS.getReaderFontId(), orientedMarginLeft, orientedMarginTop);
+
+            int savedPage = section->currentPage;
+            section->currentPage = nextPage;
+            renderStatusBar();
+            section->currentPage = savedPage;
+
+            renderer.setFrameBuffer(mainBuffer);
+
+            preRenderCache.spineIndex = currentSpineIndex;
+            preRenderCache.pageIndex = nextPage;
+            preRenderCache.orientation = appliedOrientation;
+            preRenderCache.visibleTextOffset = p->visibleTextOffset;
+            preRenderCache.footnotes = p->footnotes;
+            preRenderCache.links = p->links;
+            preRenderCache.valid = true;
+            LOG_DBG("ERS", "Pre-rendered next page %d into PSRAM cache in %lums", nextPage, millis() - tPre);
+          }
+#endif
         }
       }
     }
@@ -528,6 +585,16 @@ void EpubReaderActivity::loop() {
       case CrossPointSettings::LP_MENU_DISABLED:
       default:
         break;
+    }
+  }
+
+  // Direct touch word selection & dictionary lookup via long press on text
+  if (!atEndOfBook && mappedInput.hasTouch()) {
+    int touchX = 0;
+    int touchY = 0;
+    if (mappedInput.wasScreenLongPress(touchX, touchY)) {
+      openDictionaryWordSelect(touchX, touchY);
+      return;
     }
   }
 
@@ -994,6 +1061,7 @@ void EpubReaderActivity::applyOrientation(const uint8_t orientation) {
   }
   ReaderUtils::applyOrientation(renderer, SETTINGS.orientation);
   appliedOrientation = orientation;
+  clearPreRenderCache();
   section.reset();
 }
 
@@ -1033,17 +1101,20 @@ bool EpubReaderActivity::pageTurn(bool isForwardTurn) {
       return true;
     } else if (currentSpineIndex + 1 < epub->getSpineItemsCount()) {
       RenderLock lock;
+      clearPreRenderCache();
       nextPageNumber = 0;
       currentSpineIndex++;
       section.reset();
       lastPageTurnTime = millis();
       return true;
     } else {
+      clearPreRenderCache();
       currentSpineIndex = epub->getSpineItemsCount();
       lastPageTurnTime = millis();
       return true;
     }
   } else {
+    clearPreRenderCache();
     if (section->currentPage > 0) {
       section->currentPage--;
       lastPageTurnTime = millis();
@@ -1063,6 +1134,7 @@ bool EpubReaderActivity::pageTurn(bool isForwardTurn) {
 
 bool EpubReaderActivity::skipPages(int amount) {
   if (!section) return false;
+  clearPreRenderCache();
   if (amount > 0) {
     RenderLock lock;
     nextPageNumber = 0;
@@ -1348,6 +1420,33 @@ void EpubReaderActivity::renderBook() {
   updateBookmarkFlag();
 
   {
+#if defined(BOARD_HAS_PSRAM)
+    const bool cacheHit = preRenderCache.valid && preRenderCache.buffer != nullptr &&
+                          preRenderCache.spineIndex == currentSpineIndex &&
+                          preRenderCache.pageIndex == section->currentPage &&
+                          preRenderCache.orientation == appliedOrientation;
+    if (cacheHit) {
+      const auto start = millis();
+      currentPageVisibleOffset = preRenderCache.visibleTextOffset;
+      currentPageFootnotes = std::move(preRenderCache.footnotes);
+      currentPageLinks = std::move(preRenderCache.links);
+      currentPageLinkMarginLeft = orientedMarginLeft;
+      currentPageLinkMarginTop = orientedMarginTop;
+
+      discardOverlayPage();
+
+      memcpy(renderer.getFrameBuffer(), preRenderCache.buffer, renderer.getBufferSize());
+      preRenderCache.valid = false;
+
+      forcedRefreshPending = false;
+      ReaderUtils::displayWithRefreshCycle(renderer, pagesUntilFullRefresh, false);
+
+      LOG_INF("ERS", "Instant page turn from PSRAM pre-render cache (blitted in %lums)", millis() - start);
+      lastRenderCompleteMs = millis();
+      goto after_page_render;
+    }
+#endif
+
     auto p = section->loadPage(section->currentPage);
     if (!p) {
       LOG_ERR("ERS", "Failed to load page from SD - clearing section cache");
@@ -1387,6 +1486,9 @@ void EpubReaderActivity::renderBook() {
     LOG_DBG("ERS", "Rendered page in %dms", millis() - start);
     lastRenderCompleteMs = millis();
   }
+#if defined(BOARD_HAS_PSRAM)
+after_page_render:
+#endif
 
   if (currentSpineIndex != lastSavedSpineIndex || section->currentPage != lastSavedPage ||
       section->pageCount != lastSavedPageCount) {
@@ -2298,6 +2400,7 @@ void EpubReaderActivity::applyReaderTextSettings() {
     cachedChapterTotalPageCount = section->pageCount;
     nextPageNumber = section->currentPage;
   }
+  clearPreRenderCache();
   section.reset();  // force re-pagination with the new settings
 }
 

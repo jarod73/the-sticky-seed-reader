@@ -13,6 +13,7 @@
 #include "fontIds.h"
 #include "util/DictHtmlPages.h"
 #include "util/HtmlToPlainText.h"
+#include "util/NoteExporter.h"
 
 namespace {
 
@@ -203,11 +204,26 @@ void DictionaryDefinitionActivity::loop() {
     return;
   }
 
+  if (mappedInput.wasReleased(MappedInputManager::Button::Confirm)) {
+    if (NoteExporter::exportAnkiFlashcard(headword, definition)) {
+      GUI.drawPopup(renderer, "Saved to Anki");
+      requestUpdate();
+    }
+    return;
+  }
+
   // Same tap zones as the reader page turns: left third = previous page,
-  // the rest = next. Back is the usual left-edge swipe.
+  // the rest = next. Top-right area saves to Anki. Back is the usual left-edge swipe.
   int tx = 0;
   int ty = 0;
   if (mappedInput.wasScreenTapped(tx, ty)) {
+    if (tx > renderer.getScreenWidth() - 140 && ty < 60) {
+      if (NoteExporter::exportAnkiFlashcard(headword, definition)) {
+        GUI.drawPopup(renderer, "Saved to Anki");
+        requestUpdate();
+      }
+      return;
+    }
     if (tx < renderer.getScreenWidth() / 3) {
       if (currentPage > 0) {
         currentPage--;
@@ -280,6 +296,11 @@ void DictionaryDefinitionActivity::render(RenderLock&&) {
     renderer.drawText(UI_10_FONT_ID, contentX + contentWidth - SIDE_PADDING - counterWidth, headerY, counter);
   }
 
+  // Anki export tag in header
+  const int ankiOffset = totalPages > 1 ? 65 : 0;
+  const int ankiWidth = renderer.getTextWidth(UI_10_FONT_ID, "[+Anki]");
+  renderer.drawText(UI_10_FONT_ID, contentX + contentWidth - SIDE_PADDING - ankiOffset - ankiWidth, headerY, "[+Anki]");
+
   // Body: two-pass draw inside a prewarm scope (same pattern as the reader's
   // renderContents) so SD-card font glyphs load from SD in one batch instead
   // of one on-demand overflow read per character on every page turn.
@@ -292,7 +313,7 @@ void DictionaryDefinitionActivity::render(RenderLock&&) {
   drawBody(fontId, contentX + SIDE_PADDING, bodyStartY);
 
   const auto labels =
-      mappedInput.mapLabels(tr(STR_BACK), "", (currentPage > 0 ? "<" : ""), (currentPage + 1 < totalPages ? ">" : ""));
+      mappedInput.mapLabels(tr(STR_BACK), "+Anki", (currentPage > 0 ? "<" : ""), (currentPage + 1 < totalPages ? ">" : ""));
   GUI.drawButtonHints(renderer, labels.btn1, labels.btn2, labels.btn3, labels.btn4);
   renderer.displayBuffer();
 }

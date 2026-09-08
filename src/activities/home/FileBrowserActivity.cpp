@@ -129,6 +129,7 @@ void FileBrowserActivity::onEnter() {
     return;
   }
 
+  Storage.checkCard();
   auto root = Storage.open(basepath.c_str());
   if (!root) {
     basepath = "/";
