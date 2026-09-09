@@ -34,13 +34,9 @@ static void sendJsonStatus(Stream& serial) {
   doc["battery_pct"] = batteryMonitor.readPercentage();
   doc["battery_mv"] = batteryMonitor.readMillivolts();
 
-  int16_t currentMa = 0;
-  if (batteryMonitor.readCurrentMa(currentMa)) {
-    doc["battery_ma"] = currentMa;
-  }
-  uint16_t timeToEmpty = 0;
-  if (batteryMonitor.readTimeToEmptyMinutes(timeToEmpty)) {
-    doc["time_to_empty_min"] = timeToEmpty;
+  auto status = batteryMonitor.readStatus();
+  if (status.chargingKnown) {
+    doc["charging"] = status.charging;
   }
 
   float tempC = 0.0f;

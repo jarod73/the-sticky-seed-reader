@@ -10,11 +10,13 @@ namespace {
 
 std::string sanitizeFilename(const std::string& name) {
   std::string clean = name;
-  for (char& c : clean) {
-    if (c == '/' || c == '\\' || c == ':' || c == '*' || c == '?' || c == '"' || c == '<' || c == '>' || c == '|') {
-      c = '_';
-    }
-  }
+  std::replace_if(
+      clean.begin(), clean.end(),
+      [](char c) {
+        return c == '/' || c == '\\' || c == ':' || c == '*' || c == '?' || c == '"' || c == '<' || c == '>' ||
+               c == '|';
+      },
+      '_');
   if (clean.empty()) clean = "untitled";
   return clean;
 }

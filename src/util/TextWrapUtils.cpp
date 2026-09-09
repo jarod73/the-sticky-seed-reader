@@ -1,5 +1,7 @@
 #include "TextWrapUtils.h"
 
+#include <GfxRenderer.h>
+
 #include <algorithm>
 #include <cctype>
 
@@ -115,7 +117,7 @@ void TextWrapUtils::paginateParagraphs(const GfxRenderer& renderer, int fontId,
 
   for (const auto& para : paragraphs) {
     std::vector<std::string> wrapped = wrapToCharCount(para, approxCharsPerLine);
-    for (auto& line : wrapped) {
+    for (const auto& line : wrapped) {
       if (!currentPageText.empty()) currentPageText += "\n";
       currentPageText += line;
       currentLineCount++;

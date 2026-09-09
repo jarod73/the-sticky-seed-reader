@@ -4,9 +4,9 @@ add_executable(TextWrapUtilsTest
 )
 
 target_include_directories(TextWrapUtilsTest PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/stubs
   ${REPO_ROOT}/src
   ${REPO_ROOT}/src/util
-  ${REPO_ROOT}/lib/GfxRenderer
   ${REPO_ROOT}/lib/EpdFont
 )
 

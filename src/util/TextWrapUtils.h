@@ -1,10 +1,12 @@
 #pragma once
 
-#include <GfxRenderer.h>
+#include <EpdFontFamily.h>
 
 #include <string>
 #include <string_view>
 #include <vector>
+
+class GfxRenderer;
 
 /**
  * TextWrapUtils
