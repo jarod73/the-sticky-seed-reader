@@ -85,12 +85,14 @@ void ReadingStatsActivity::draw7DayBarChart(int x, int y, int w, int h) {
     // Minutes label above bar
     char minBuf[16];
     snprintf(minBuf, sizeof(minBuf), "%um", mins);
-    renderer.drawCenteredText(SMALL_FONT_ID, by - 12, minBuf, true);
+    const int minW = renderer.getTextWidth(SMALL_FONT_ID, minBuf);
+    renderer.drawText(SMALL_FONT_ID, bx + (barW - minW) / 2, by - 12, minBuf, true);
 
     // Day label below axis
     const std::string& dateStr = history[i].first;
     std::string dayLabel = (dateStr.length() >= 5) ? dateStr.substr(dateStr.length() - 5) : dateStr;
-    renderer.drawCenteredText(SMALL_FONT_ID, chartY + chartH + 14, dayLabel.c_str(), true);
+    const int dayW = renderer.getTextWidth(SMALL_FONT_ID, dayLabel.c_str());
+    renderer.drawText(SMALL_FONT_ID, bx + (barW - dayW) / 2, chartY + chartH + 14, dayLabel.c_str(), true);
   }
 }
 

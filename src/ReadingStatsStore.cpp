@@ -18,6 +18,21 @@ std::string getTodayDateString() {
   snprintf(buf, sizeof(buf), "%04d-%02d-%02d", timeinfo.tm_year + 1900, timeinfo.tm_mon + 1, timeinfo.tm_mday);
   return std::string(buf);
 }
+bool isConsecutiveDay(const std::string& prevDateStr, const std::string& curDateStr) {
+  if (prevDateStr.size() != 10 || curDateStr.size() != 10) return false;
+  struct tm tmPrev = {}, tmCur = {};
+  if (sscanf(prevDateStr.c_str(), "%d-%d-%d", &tmPrev.tm_year, &tmPrev.tm_mon, &tmPrev.tm_mday) != 3) return false;
+  if (sscanf(curDateStr.c_str(), "%d-%d-%d", &tmCur.tm_year, &tmCur.tm_mon, &tmCur.tm_mday) != 3) return false;
+  tmPrev.tm_year -= 1900;
+  tmPrev.tm_mon -= 1;
+  tmCur.tm_year -= 1900;
+  tmCur.tm_mon -= 1;
+  time_t tPrev = mktime(&tmPrev);
+  time_t tCur = mktime(&tmCur);
+  if (tPrev == -1 || tCur == -1) return false;
+  double diffSec = difftime(tCur, tPrev);
+  return diffSec >= 43200.0 && diffSec <= 129600.0;
+}
 }  // namespace
 
 void ReadingStatsStore::toJson(JsonDocument& doc) const {
@@ -63,7 +78,7 @@ void ReadingStatsStore::recordReadingSession(uint32_t seconds, uint32_t wordsRea
 
   // Calculate daily streak
   if (lastReadDate != today) {
-    if (!lastReadDate.empty()) {
+    if (!lastReadDate.empty() && isConsecutiveDay(lastReadDate, today)) {
       currentDailyStreak++;
     } else {
       currentDailyStreak = 1;
