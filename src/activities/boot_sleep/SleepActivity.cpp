@@ -597,7 +597,7 @@ void SleepActivity::renderAmbientClimateWidget() const {
   const auto pageWidth = renderer.getScreenWidth();
   const auto pageHeight = renderer.getScreenHeight();
 
-  std::string banner;
+  std::vector<std::string> parts;
 
 #if FREEINK_CAP_TEMP_HUMIDITY
   EnvironmentSensor envSensor;
@@ -606,26 +606,31 @@ void SleepActivity::renderAmbientClimateWidget() const {
   if (envSensor.begin() && envSensor.read(tempC, humidityPct)) {
     char buf[32];
     snprintf(buf, sizeof(buf), "%.1f°C  %.0f%% RH", tempC, humidityPct);
-    banner += buf;
+    parts.emplace_back(buf);
   }
 #endif
 
   if (halClock.isAvailable()) {
     char timeBuf[16] = {0};
     if (halClock.formatTime(timeBuf, sizeof(timeBuf), SETTINGS.clockUtcOffsetQ, SETTINGS.clockFormat == 1)) {
-      if (!banner.empty()) banner += "   •   ";
-      banner += timeBuf;
+      parts.emplace_back(timeBuf);
     }
   }
 
   const uint16_t batteryPct = powerManager.getBatteryPercentage();
   char batBuf[32];
-  if (!banner.empty()) {
-    snprintf(batBuf, sizeof(batBuf), "   •   %u%%", batteryPct);
+  if (!parts.empty()) {
+    snprintf(batBuf, sizeof(batBuf), "%u%%", batteryPct);
   } else {
     snprintf(batBuf, sizeof(batBuf), "Battery: %u%%", batteryPct);
   }
-  banner += batBuf;
+  parts.emplace_back(batBuf);
+
+  std::string banner;
+  for (size_t i = 0; i < parts.size(); ++i) {
+    if (i > 0) banner += "   •   ";
+    banner += parts[i];
+  }
 
   const int bannerY = pageHeight - 32;
   renderer.drawLine(24, bannerY - 10, pageWidth - 24, bannerY - 10);
