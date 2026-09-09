@@ -31,7 +31,9 @@ jobs:
       - name: Run clang-format
         run: |
           PATH="/usr/lib/llvm-21/bin:$PATH" ./bin/clang-format-fix
-          if ! git diff --exit-code; then
+          git status
+          git diff
+          if ! git diff --quiet; then
             echo "::error::clang-format found formatting issues. Run ./bin/clang-format-fix."
             exit 1
           fi
