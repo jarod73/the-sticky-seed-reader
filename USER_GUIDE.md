@@ -21,7 +21,13 @@ Welcome to **The Sticky Seed Reader**, the next-generation firmware engineered e
 13. [Wireless Library Management (Calibre, Web Portal, OPDS)](#13-wireless-library-management-calibre-web-portal-opds)
 14. [KOReader Cloud Reading Sync](#14-koreader-cloud-reading-sync)
 15. [Over-The-Air (OTA) Firmware Updates](#15-over-the-air-ota-firmware-updates)
-16. [Troubleshooting & Recovery Guide](#16-troubleshooting--recovery-guide)
+16. [Public Library Ecosystem & Open Library](#16-public-library-ecosystem--open-library)
+17. [Reading Statistics, Pacing & 7-Day Heatmap](#17-reading-statistics-pacing--7-day-heatmap)
+18. [Kindle-Style X-Ray & Concept Guide](#18-kindle-style-x-ray--concept-guide)
+19. [Pocket & Wallabag Saved Article Sync](#19-pocket--wallabag-saved-article-sync)
+20. [Night Mode (High-Contrast Inverted Theme)](#20-night-mode-high-contrast-inverted-theme)
+21. [BLE Wireless Page-Turner Remote & Ring Pairing](#21-ble-wireless-page-turner-remote--ring-pairing)
+22. [Troubleshooting & Recovery Guide](#22-troubleshooting--recovery-guide)
 
 ---
 
@@ -338,7 +344,96 @@ Keep your device up to date with the latest features, performance improvements, 
 
 ---
 
-## 16. Troubleshooting & Recovery Guide
+## 16. Public Library Ecosystem & Open Library
+
+Access millions of free public domain titles and open digital library loans directly from your reTerminal Sticky.
+
+### 1. Open Library / Internet Archive Search
+* Open **Library** $\rightarrow$ **Open Library**.
+* Enter any book title, author, or keyword on the on-screen keyboard.
+* The device queries the Open Library Search API, returning titles, authors, publication years, and digital borrow availability.
+* Tap **Download** on any available title: the firmware downloads the EPUB directly from the Internet Archive into your library and opens it immediately.
+
+### 2. Pre-Loaded Public Library OPDS Catalogs
+* Open **Library** $\rightarrow$ **OPDS Catalogs**.
+* Out of the box, the following curated, high-quality public domain catalogs are pre-configured:
+  * **Standard Ebooks**: High-quality, beautifully formatted typography editions.
+  * **Project Gutenberg**: Over 70,000 free classics.
+  * **Feedbooks Public Domain**: Curated historical and literary catalogs.
+* Browse by category, popularity, or search query with live cover art previews.
+
+---
+
+## 17. Reading Statistics, Pacing & 7-Day Heatmap
+
+Track your reading habits and pacing with the Kobo-style Reading Analytics engine.
+
+### Viewing Your Dashboard
+* Tap **Reading Stats** on the Home screen or in the Reader Toolbar.
+* **Telemetry Metrics**:
+  * **Total Time**: Cumulative hours and minutes spent reading.
+  * **Pages Turned**: Total page count across all books.
+  * **Books Finished**: Count of completed titles.
+  * **Reading Speed**: Rolling words-per-minute (WPM) calculation.
+  * **Reading Streak**: Current consecutive daily reading streak with flame badge.
+* **7-Day E-Ink Heatmap**: A custom-rendered horizontal bar chart showing your daily reading minutes over the past week.
+* **In-Book Pacing**: The reader status bar displays real-time estimated time left in the current chapter and whole book based on your rolling WPM.
+
+---
+
+## 18. Kindle-Style X-Ray & Concept Guide
+
+Explore characters, historical contexts, and complex concepts without leaving your book.
+
+### Using X-Ray Lookup
+1. While reading any book, tap the top 15% margin to open the **Reader Toolbar**.
+2. Tap the **X-Ray Guide** icon, or long-press/tap on any character or topic name.
+3. The device queries the Wikipedia REST API in the background.
+4. A focused 1-screen dossier opens with the character bio or concept overview, key details, and historical summary.
+5. Tap **Back** or swipe down to return directly to your exact reading position.
+
+---
+
+## 19. Pocket & Wallabag Saved Article Sync
+
+Synchronize your web reading queue for offline distraction-free reading.
+
+### Syncing Your Articles
+1. Open **Settings** $\rightarrow$ **Article Sync (Pocket / Wallabag)**.
+2. Enter your sync API endpoint URL and Bearer token.
+3. Tap **Sync Queue Now**.
+4. The service fetches unread articles, parses them through the zero-copy `ReadabilityExtractor`, and generates clean offline chapters in `/.crosspoint/articles/`.
+5. Read them anytime without requiring an active Wi-Fi connection.
+
+---
+
+## 20. Night Mode (High-Contrast Inverted Theme)
+
+Enjoy comfortable night-time reading in low-light environments.
+
+### Enabling Night Mode
+* Open **Reader Toolbar** $\rightarrow$ **Settings** $\rightarrow$ **Display** $\rightarrow$ **Night Mode**.
+* Or toggle **Screen Invert** in main system settings.
+* The hardware E-Ink controller dynamically inverts the black and white pixel polarity, producing deep black backgrounds with razor-sharp white typography and reduced glare.
+
+---
+
+## 21. BLE Wireless Page-Turner Remote & Ring Pairing
+
+Turn pages completely hands-free while reading on a stand or in bed using Bluetooth Low Energy.
+
+### Pairing a Remote / Ring
+1. Open **Settings** $\rightarrow$ **Bluetooth Remotes**.
+2. Turn on pairing mode on your BLE page-turner ring or HID remote.
+3. Tap **Scan for Remotes**.
+4. Select your device from the list to pair and store its address.
+5. While reading:
+   * **Next Page / Volume Down / Down Arrow**: Turns to the next page.
+   * **Prev Page / Volume Up / Up Arrow**: Turns to the previous page.
+
+---
+
+## 22. Troubleshooting & Recovery Guide
 
 ### 1. Wi-Fi Password Missing After Update
 * **Resolution**: The firmware features **NVS Dual Persistence**. Wi-Fi credentials and cloud tokens are mirrored to the non-volatile storage partition (`cp_wifi`). If an SD card is reformatted or removed, settings restore automatically upon boot.

@@ -30,6 +30,12 @@ Unlike generic multi-device firmwares, **The Sticky Seed Reader** is purpose-bui
 | **Acoustic Haptics** | Silent | **Piezo Micro-Clicks**: 10ms 2.4kHz acoustic feedback on touch contact |
 | **Digital Audio** | None | **Knowles PDM Digital Mic**: 16kHz 16-bit voice memos directly to PSRAM WAV buffer |
 | **Study & Flashcards** | Manual notes | **One-Tap Anki Export (`.tsv`) + Obsidian Markdown Notes (`.md`)** with YAML metadata |
+| **Public Library Ecosystem** | Basic manual OPDS entry | **Native Open Library & Internet Archive Search** + Built-in Presets (*Standard Ebooks, Gutenberg, Feedbooks*) |
+| **Reading Analytics** | None | **Kobo-Style Stats**: WPM calculation, time left in book, daily streaks, & **7-Day E-Ink Heatmap Chart** |
+| **Character & Topic X-Ray** | None | **Kindle-Style X-Ray & Concept Guide**: Instant 1-screen character dossiers via Wikipedia REST API |
+| **Read-It-Later Sync** | None | **Pocket & Wallabag Unread Queue Sync**: Background article fetching & offline formatting |
+| **Night Reading Mode** | Black text on white only | **Hardware Inverted Night Mode**: Crisp white text on deep black background |
+| **Hands-Free Remotes** | Physical buttons only | **BLE Wireless Page-Turner Support**: Pair Bluetooth Low Energy HID rings & remotes |
 | **Companion Protocol** | Basic mass storage | **921,600 Baud `UsbSerialCompanion`**: Drag-and-drop book sync, telemetry, & CLI |
 | **Typography & UI Scaling**| Fixed UI text sizing | **Dynamic UI Scale (Small, Medium, Large, Extra Large)** with line-metric recalculation |
 | **Credential Persistence** | Settings in single file (lost on wipe) | **NVS Dual Persistence**: Wi-Fi and Cloud credentials mirrored to Flash NVS |
@@ -98,6 +104,26 @@ Unlike generic multi-device firmwares, **The Sticky Seed Reader** is purpose-bui
 * **PDF Documents (`.pdf`)**: Native text operator extractor (`BT/ET`, `Tj`, `TJ`) for reading document contents.
 * **Plain Text & Markdown (`.txt`, `.md`)**: High-speed line-wrapped reading with bookmarking.
 * **XTC / XTCH (`.xtc`, `.xtch`)**: Pre-rendered binary e-book cache format for $<1\text{ms}$ startup.
+
+### 9. 🏛️ Public Library Ecosystem & Open Library
+* **Open Library & Internet Archive Integration**: Search millions of public domain titles and digital book loans directly over Wi-Fi, downloading EPUBs straight to your device.
+* **Pre-Loaded Curated OPDS Feeds**: Immediate out-of-the-box access to *Standard Ebooks*, *Project Gutenberg*, and *Feedbooks Public Domain* catalogs with cover art and summaries.
+
+### 10. 📊 Kobo-Style Reading Analytics & 7-Day Heatmap
+* **Live Telemetry & Pacing**: Real-time reading speed computation (WPM), dynamic time-to-finish estimates for current chapter and book.
+* **Visual Dashboard**: 2x2 metric cards displaying Total Reading Time, Pages Turned, Books Finished, and Daily Reading Streaks with an E-Ink optimized 7-day activity bar chart.
+
+### 11. 🔍 Kindle-Style X-Ray & Concept Guide
+* **Instant Character & Context Dossiers**: Tap or select any character, author, historical figure, or technical concept while reading to pull down a focused 1-screen summary from the Wikipedia REST API without losing your page context.
+
+### 12. 📥 Pocket & Wallabag Saved Article Sync
+* **Offline Web Reading Queue**: Connect your self-hosted Wallabag or Pocket account/feed over Wi-Fi. Unread articles are downloaded and automatically formatted into clean, standalone e-book chapters via `ReadabilityExtractor`.
+
+### 13. 🌙 Inverted Night Reading Mode
+* **Deep Contrast Dark Theme**: Toggle full-screen white-on-black inverted rendering for comfortable low-light bedtime reading with zero eye fatigue.
+
+### 14. 💍 Hands-Free BLE Wireless Page-Turner Support
+* **Bluetooth Remote & Ring Pairing**: Connect any BLE HID consumer page-turner ring or handheld presentation remote for effortless, hands-free reading in bed or on a desk stand.
 
 ---
 

@@ -35,10 +35,17 @@ bool OpdsServerStore::fromJson(JsonVariantConst doc) {
     servers.push_back(std::move(server));
   }
 
+  if (servers.empty()) {
+    servers.push_back({"Standard Ebooks (Public Library)", "https://standardebooks.org/opds/all", "", ""});
+    servers.push_back({"Project Gutenberg (70k+ Books)", "https://m.gutenberg.org/ebooks.opds/", "", ""});
+    servers.push_back({"Feedbooks Public Domain", "https://catalog.feedbooks.com/catalog/public_domain.atom", "", ""});
+    needsResave = true;
+  }
+
   LOG_DBG("OPS", "Loaded %zu OPDS servers from file", servers.size());
 
   if (needsResave) {
-    LOG_DBG("OPS", "Resaving JSON with obfuscated passwords");
+    LOG_DBG("OPS", "Resaving JSON with obfuscated passwords / public library presets");
     requestResave();
   }
 

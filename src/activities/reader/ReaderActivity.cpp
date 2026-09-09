@@ -16,6 +16,7 @@
 #include "PdfReaderActivity.h"
 #include "ReaderUtils.h"
 #include "RecentBooksStore.h"
+#include "ReadingStatsStore.h"
 #include "SdCardFontSystem.h"
 #include "TxtReaderActivity.h"
 #include "XtcReaderActivity.h"
@@ -180,8 +181,10 @@ void ReaderActivity::loop() {
   } else {
     if (skip) {
       skipPages(10);
+      READING_STATS.recordPageTurn(2500);
     } else {
       pageTurn(true);
+      READING_STATS.recordPageTurn(250);
     }
   }
   requestUpdate();

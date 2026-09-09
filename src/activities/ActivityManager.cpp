@@ -21,9 +21,14 @@
 #include "home/FileBrowserActivity.h"
 #include "home/HomeActivity.h"
 #include "home/RecentBooksActivity.h"
+#include "home/ReadingStatsActivity.h"
+#include "network/ArticleSyncActivity.h"
 #include "network/CrossPointWebServerActivity.h"
+#include "network/OpenLibraryActivity.h"
 #include "network/UsbDriveActivity.h"
 #include "reader/ReaderActivity.h"
+#include "reader/XRayGuideActivity.h"
+#include "settings/BleRemoteSettingsActivity.h"
 #include "settings/OpdsServerListActivity.h"
 #include "settings/SettingsActivity.h"
 #include "util/BmpViewerActivity.h"
@@ -308,6 +313,26 @@ void ActivityManager::goToBoot() { replaceActivity(std::make_unique<BootActivity
 
 void ActivityManager::goToFullScreenMessage(std::string message, EpdFontFamily::Style style) {
   replaceActivity(std::make_unique<FullScreenMessageActivity>(renderer, mappedInput, std::move(message), style));
+}
+
+void ActivityManager::goToReadingStats() {
+  replaceActivity(std::make_unique<ReadingStatsActivity>(renderer, mappedInput));
+}
+
+void ActivityManager::goToOpenLibrary(std::string query) {
+  replaceActivity(std::make_unique<OpenLibraryActivity>(renderer, mappedInput, std::move(query)));
+}
+
+void ActivityManager::goToXRayGuide(std::string term) {
+  replaceActivity(std::make_unique<XRayGuideActivity>(renderer, mappedInput, std::move(term)));
+}
+
+void ActivityManager::goToArticleSync() {
+  replaceActivity(std::make_unique<ArticleSyncActivity>(renderer, mappedInput));
+}
+
+void ActivityManager::goToBleRemoteSettings() {
+  replaceActivity(std::make_unique<BleRemoteSettingsActivity>(renderer, mappedInput));
 }
 
 void ActivityManager::goHome(HomeMenuItem initialMenuItem, bool cleanInitialRefresh) {
