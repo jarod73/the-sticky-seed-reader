@@ -4,7 +4,7 @@
 
 /**
  * @brief Power management and deep-sleep profile coordinator for reTerminal Sticky.
- * 
+ *
  * Provides ultra-low-power ambient sleep management:
  * - Configures RTC and ESP32-S3 deep sleep timer (<15µA quiescent draw).
  * - Arms hardware wakeup sources:

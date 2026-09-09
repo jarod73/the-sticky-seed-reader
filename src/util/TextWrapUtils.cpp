@@ -5,9 +5,8 @@
 #include <algorithm>
 #include <cctype>
 
-std::vector<std::string> TextWrapUtils::wrapToWidth(const GfxRenderer& renderer, int fontId,
-                                                    std::string_view text, int maxWidthPixels,
-                                                    size_t maxLines) {
+std::vector<std::string> TextWrapUtils::wrapToWidth(const GfxRenderer& renderer, int fontId, std::string_view text,
+                                                    int maxWidthPixels, size_t maxLines) {
   std::vector<std::string> lines;
   if (text.empty() || maxWidthPixels <= 0) return lines;
 
@@ -80,9 +79,8 @@ std::vector<std::string> TextWrapUtils::wrapToCharCount(std::string_view text, s
   return lines;
 }
 
-int TextWrapUtils::drawWrappedParagraph(GfxRenderer& renderer, int fontId, int x, int y,
-                                        int maxWidth, int maxHeight, std::string_view text,
-                                        EpdFontFamily::Style style, int extraLineSpacing) {
+int TextWrapUtils::drawWrappedParagraph(GfxRenderer& renderer, int fontId, int x, int y, int maxWidth, int maxHeight,
+                                        std::string_view text, EpdFontFamily::Style style, int extraLineSpacing) {
   if (text.empty()) return y;
 
   const int lineHeight = renderer.getLineHeight(fontId) + extraLineSpacing;
@@ -101,8 +99,7 @@ int TextWrapUtils::drawWrappedParagraph(GfxRenderer& renderer, int fontId, int x
 }
 
 void TextWrapUtils::paginateParagraphs(const GfxRenderer& renderer, int fontId,
-                                       const std::vector<std::string>& paragraphs,
-                                       int contentWidth, int contentHeight,
+                                       const std::vector<std::string>& paragraphs, int contentWidth, int contentHeight,
                                        std::vector<std::string>& outPages) {
   outPages.clear();
   if (paragraphs.empty() || contentWidth <= 0 || contentHeight <= 0) return;

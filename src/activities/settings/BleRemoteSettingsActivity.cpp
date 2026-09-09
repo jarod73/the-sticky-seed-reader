@@ -19,9 +19,7 @@ void BleRemoteSettingsActivity::onEnter() {
   scanForDevices();
 }
 
-void BleRemoteSettingsActivity::onExit() {
-  Activity::onExit();
-}
+void BleRemoteSettingsActivity::onExit() { Activity::onExit(); }
 
 void BleRemoteSettingsActivity::scanForDevices() {
   isScanning_ = true;

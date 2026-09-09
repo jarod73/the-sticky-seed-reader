@@ -48,9 +48,7 @@ bool MobiReaderActivity::pageTurn(const bool isForward) {
   return false;
 }
 
-bool MobiReaderActivity::isAtEndOfBook() const {
-  return pages_.empty() || (currentPage_ + 1 >= pages_.size());
-}
+bool MobiReaderActivity::isAtEndOfBook() const { return pages_.empty() || (currentPage_ + 1 >= pages_.size()); }
 
 bool MobiReaderActivity::decompressPalmDoc(const uint8_t* in, size_t inLen, std::string& out) {
   size_t i = 0;

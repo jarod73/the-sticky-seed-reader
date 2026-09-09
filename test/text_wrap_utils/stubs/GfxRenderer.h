@@ -15,6 +15,5 @@ class GfxRenderer {
     while (*text++) len += 8;
     return len;
   }
-  void drawText(int, int, int, const char*, bool = false,
-                EpdFontFamily::Style = EpdFontFamily::REGULAR) const {}
+  void drawText(int, int, int, const char*, bool = false, EpdFontFamily::Style = EpdFontFamily::REGULAR) const {}
 };

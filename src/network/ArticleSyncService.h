@@ -21,8 +21,8 @@ class ArticleSyncService {
 
   using ProgressCallback = std::function<void(size_t current, size_t total, const std::string& title)>;
 
-  static bool syncArticlesFromUrl(const std::string& endpointUrl, const std::string& apiToken,
-                                  SyncResult& result, ProgressCallback progress = nullptr);
+  static bool syncArticlesFromUrl(const std::string& endpointUrl, const std::string& apiToken, SyncResult& result,
+                                  ProgressCallback progress = nullptr);
 
   static size_t getLocalArticleCount();
 };

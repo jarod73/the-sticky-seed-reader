@@ -18,10 +18,10 @@ struct RssItem {
  * Container for a parsed syndication feed.
  */
 struct RssFeed {
-  std::string title;            ///< Channel or publication title
-  std::string description;      ///< Publication tagline or description
-  std::vector<RssItem> items;   ///< List of parsed feed items
-  bool valid = false;           ///< True if parsing successfully extracted at least one item
+  std::string title;           ///< Channel or publication title
+  std::string description;     ///< Publication tagline or description
+  std::vector<RssItem> items;  ///< List of parsed feed items
+  bool valid = false;          ///< True if parsing successfully extracted at least one item
 };
 
 /**

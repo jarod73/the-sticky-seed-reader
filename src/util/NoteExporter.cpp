@@ -94,8 +94,7 @@ bool exportObsidianMarkdown(const std::string& bookTitle, const std::string& boo
   return true;
 }
 
-bool exportAnkiFlashcard(const std::string& word, const std::string& definition,
-                         const std::string& bookTitle) {
+bool exportAnkiFlashcard(const std::string& word, const std::string& definition, const std::string& bookTitle) {
   if (word.empty() || definition.empty()) return false;
 
   Storage.ensureDirectoryExists("/.crosspoint");

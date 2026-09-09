@@ -6,7 +6,7 @@
 
 /**
  * @brief Geolocation and GNSS synchronization service for reTerminal Sticky.
- * 
+ *
  * Provides dual location acquisition:
  * 1. IP Geolocation over Wi-Fi (zero hardware needed): queries geolocation API
  *    for city name, decimal coordinates, and IANA time zone / UTC offset.

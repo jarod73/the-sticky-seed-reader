@@ -138,8 +138,10 @@ int DictionaryWordSelectActivity::wordAt(const int x, const int y) const {
     const WordBox& word = words[i];
     if (y >= word.y - 10 && y < word.y + lineHeight + 10) {
       int dist = 0;
-      if (x < word.x) dist = word.x - x;
-      else if (x > word.x + word.width) dist = x - (word.x + word.width);
+      if (x < word.x)
+        dist = word.x - x;
+      else if (x > word.x + word.width)
+        dist = x - (word.x + word.width);
       if (dist < bestDist) {
         bestDist = dist;
         best = i;

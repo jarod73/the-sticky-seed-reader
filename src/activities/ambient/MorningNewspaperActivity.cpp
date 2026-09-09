@@ -55,25 +55,22 @@ void MorningNewspaperActivity::onEnter() {
   checkAndConnectWifi();
 }
 
-void MorningNewspaperActivity::onExit() {
-  Activity::onExit();
-}
+void MorningNewspaperActivity::onExit() { Activity::onExit(); }
 
 void MorningNewspaperActivity::checkAndConnectWifi() {
   if (WiFi.status() == WL_CONNECTED && WiFi.localIP() != IPAddress(0, 0, 0, 0)) {
     loadNewspaperData();
   } else {
     state = NewspaperState::WIFI_CONNECTING;
-    startActivityForResult(
-        std::make_unique<WifiSelectionActivity>(renderer, mappedInput, true),
-        [this](const ActivityResult&) {
-          if (WiFi.status() == WL_CONNECTED && WiFi.localIP() != IPAddress(0, 0, 0, 0)) {
-            loadNewspaperData();
-          } else {
-            // Load rich offline edition rather than halting on an error screen
-            loadOfflineDigest();
-          }
-        });
+    startActivityForResult(std::make_unique<WifiSelectionActivity>(renderer, mappedInput, true),
+                           [this](const ActivityResult&) {
+                             if (WiFi.status() == WL_CONNECTED && WiFi.localIP() != IPAddress(0, 0, 0, 0)) {
+                               loadNewspaperData();
+                             } else {
+                               // Load rich offline edition rather than halting on an error screen
+                               loadOfflineDigest();
+                             }
+                           });
   }
 }
 
@@ -164,8 +161,7 @@ void MorningNewspaperActivity::openStoryInBrowser(size_t index) {
   if (index < feed.items.size() && !feed.items[index].link.empty()) {
     const std::string& link = feed.items[index].link;
     if (link.rfind("http", 0) == 0) {
-      activityManager.replaceActivity(
-          std::make_unique<ReadabilityBrowserActivity>(renderer, mappedInput, link));
+      activityManager.replaceActivity(std::make_unique<ReadabilityBrowserActivity>(renderer, mappedInput, link));
     } else if (link.rfind("/", 0) == 0) {
       activityManager.goToReader(link, false);
     }
@@ -314,7 +310,8 @@ void MorningNewspaperActivity::render(RenderLock&&) {
   renderer.clearScreen(0xFF);
 
   if (state == NewspaperState::FETCHING || state == NewspaperState::WIFI_CONNECTING) {
-    const char* msg = (state == NewspaperState::WIFI_CONNECTING) ? "Connecting to Wi-Fi..." : "Fetching News & Weather...";
+    const char* msg =
+        (state == NewspaperState::WIFI_CONNECTING) ? "Connecting to Wi-Fi..." : "Fetching News & Weather...";
     const int progress = (state == NewspaperState::WIFI_CONNECTING) ? 35 : 75;
     Rect popupRect = GUI.drawPopup(renderer, msg);
     GUI.fillPopupProgress(renderer, popupRect, progress);
@@ -349,8 +346,8 @@ void MorningNewspaperActivity::render(RenderLock&&) {
   EnvironmentSensor env;
   float inTemp = 0.0f, inHum = 0.0f;
   if (env.begin() && env.read(inTemp, inHum)) {
-    rightOff += snprintf(rightInfo + rightOff, sizeof(rightInfo) - rightOff, "Room: %.1f°C / %.0f%% RH  •  ", inTemp,
-                         inHum);
+    rightOff +=
+        snprintf(rightInfo + rightOff, sizeof(rightInfo) - rightOff, "Room: %.1f°C / %.0f%% RH  •  ", inTemp, inHum);
   }
 #endif
   const uint16_t batt = powerManager.getBatteryPercentage();
@@ -422,8 +419,8 @@ void MorningNewspaperActivity::render(RenderLock&&) {
     }
 
     std::string bullet = std::to_string(i) + ". " + item.title;
-    yRight = TextWrapUtils::drawWrappedParagraph(renderer, SMALL_FONT_ID, midX + 16, yRight, colW - 24, 42,
-                                                 bullet, isSelected ? EpdFontFamily::BOLD : EpdFontFamily::REGULAR, 2);
+    yRight = TextWrapUtils::drawWrappedParagraph(renderer, SMALL_FONT_ID, midX + 16, yRight, colW - 24, 42, bullet,
+                                                 isSelected ? EpdFontFamily::BOLD : EpdFontFamily::REGULAR, 2);
     yRight += 4;
     if (i < 4 && !isSelected) {
       renderer.drawLine(midX + 16, yRight, midX + 16 + colW - 24, yRight);

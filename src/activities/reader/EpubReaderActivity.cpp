@@ -333,10 +333,10 @@ void EpubReaderActivity::openDictionaryWordSelect(int touchX, int touchY) {
   orientedMarginTop += SETTINGS.screenMargin;
   orientedMarginLeft += SETTINGS.screenMargin;
 
-  startActivityForResult(std::make_unique<DictionaryWordSelectActivity>(renderer, mappedInput, std::move(page),
-                                                                        orientedMarginLeft, orientedMarginTop,
-                                                                        touchX, touchY),
-                         [this](const ActivityResult&) { requestUpdate(); });
+  startActivityForResult(
+      std::make_unique<DictionaryWordSelectActivity>(renderer, mappedInput, std::move(page), orientedMarginLeft,
+                                                     orientedMarginTop, touchX, touchY),
+      [this](const ActivityResult&) { requestUpdate(); });
 }
 
 void EpubReaderActivity::loop() {
@@ -1421,10 +1421,9 @@ void EpubReaderActivity::renderBook() {
 
   {
 #if defined(BOARD_HAS_PSRAM)
-    const bool cacheHit = preRenderCache.valid && preRenderCache.buffer != nullptr &&
-                          preRenderCache.spineIndex == currentSpineIndex &&
-                          preRenderCache.pageIndex == section->currentPage &&
-                          preRenderCache.orientation == appliedOrientation;
+    const bool cacheHit =
+        preRenderCache.valid && preRenderCache.buffer != nullptr && preRenderCache.spineIndex == currentSpineIndex &&
+        preRenderCache.pageIndex == section->currentPage && preRenderCache.orientation == appliedOrientation;
     if (cacheHit) {
       const auto start = millis();
       currentPageVisibleOffset = preRenderCache.visibleTextOffset;

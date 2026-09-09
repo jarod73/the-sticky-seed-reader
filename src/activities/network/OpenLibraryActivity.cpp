@@ -33,9 +33,7 @@ void OpenLibraryActivity::onEnter() {
   }
 }
 
-void OpenLibraryActivity::onExit() {
-  Activity::onExit();
-}
+void OpenLibraryActivity::onExit() { Activity::onExit(); }
 
 void OpenLibraryActivity::promptSearch() {
   startActivityForResult(
@@ -156,14 +154,12 @@ void OpenLibraryActivity::downloadSelectedBook(size_t index) {
 
   LOG_INF("OPENLIB", "Downloading: %s -> %s", downloadUrl.c_str(), destPath.c_str());
 
-  auto err = HttpDownloader::downloadToFile(
-      downloadUrl, destPath,
-      [this](size_t downloaded, size_t total) {
-        if (total > 0) {
-          downloadProgress_ = static_cast<int>((downloaded * 100) / total);
-          requestUpdate();
-        }
-      });
+  auto err = HttpDownloader::downloadToFile(downloadUrl, destPath, [this](size_t downloaded, size_t total) {
+    if (total > 0) {
+      downloadProgress_ = static_cast<int>((downloaded * 100) / total);
+      requestUpdate();
+    }
+  });
 
   isDownloading_ = false;
   if (err == HttpDownloader::OK) {

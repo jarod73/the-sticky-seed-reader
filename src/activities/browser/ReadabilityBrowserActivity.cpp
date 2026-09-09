@@ -53,17 +53,16 @@ void ReadabilityBrowserActivity::checkAndConnectWifi() {
     fetchAndParseUrl(currentUrl);
   } else {
     state = WebReaderState::WIFI_CONNECTING;
-    startActivityForResult(
-        std::make_unique<WifiSelectionActivity>(renderer, mappedInput, true),
-        [this](const ActivityResult&) {
-          if (WiFi.status() == WL_CONNECTED && WiFi.localIP() != IPAddress(0, 0, 0, 0)) {
-            fetchAndParseUrl(currentUrl);
-          } else {
-            state = WebReaderState::ERROR;
-            errorMessage = "WiFi Connection Failed";
-            requestUpdate();
-          }
-        });
+    startActivityForResult(std::make_unique<WifiSelectionActivity>(renderer, mappedInput, true),
+                           [this](const ActivityResult&) {
+                             if (WiFi.status() == WL_CONNECTED && WiFi.localIP() != IPAddress(0, 0, 0, 0)) {
+                               fetchAndParseUrl(currentUrl);
+                             } else {
+                               state = WebReaderState::ERROR;
+                               errorMessage = "WiFi Connection Failed";
+                               requestUpdate();
+                             }
+                           });
   }
 }
 

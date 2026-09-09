@@ -40,7 +40,6 @@ bool exportObsidianMarkdown(const std::string& bookTitle, const std::string& boo
  * @param bookTitle Optional source book title.
  * @return True on successful write.
  */
-bool exportAnkiFlashcard(const std::string& word, const std::string& definition,
-                         const std::string& bookTitle = "");
+bool exportAnkiFlashcard(const std::string& word, const std::string& definition, const std::string& bookTitle = "");
 
 }  // namespace NoteExporter

@@ -22,9 +22,7 @@ void BleRemoteManager::startScan(uint32_t durationSeconds) {
   isScanning_ = false;
 }
 
-void BleRemoteManager::stopScan() {
-  isScanning_ = false;
-}
+void BleRemoteManager::stopScan() { isScanning_ = false; }
 
 bool BleRemoteManager::connectToDevice(const std::string& address) {
   LOG_INF("BLE_REMOTE", "Connecting to BLE remote at: %s", address.c_str());

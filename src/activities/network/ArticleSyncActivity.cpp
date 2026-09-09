@@ -20,9 +20,7 @@ void ArticleSyncActivity::onEnter() {
   requestUpdate();
 }
 
-void ArticleSyncActivity::onExit() {
-  Activity::onExit();
-}
+void ArticleSyncActivity::onExit() { Activity::onExit(); }
 
 void ArticleSyncActivity::startSync() {
   isSyncing_ = true;
@@ -33,16 +31,16 @@ void ArticleSyncActivity::startSync() {
 
   ArticleSyncService::SyncResult result;
   // If no custom endpoint is set, use sample demo endpoint
-  const std::string endpoint = "https://raw.githubusercontent.com/jarod73/the-sticky-seed-reader/develop/.crosspoint/sample_articles.json";
+  const std::string endpoint =
+      "https://raw.githubusercontent.com/jarod73/the-sticky-seed-reader/develop/.crosspoint/sample_articles.json";
 
-  ArticleSyncService::syncArticlesFromUrl(
-      endpoint, "", result,
-      [this](size_t current, size_t total, const std::string& title) {
-        currentProgress_ = current;
-        totalProgress_ = total;
-        currentArticleTitle_ = title;
-        requestUpdate();
-      });
+  ArticleSyncService::syncArticlesFromUrl(endpoint, "", result,
+                                          [this](size_t current, size_t total, const std::string& title) {
+                                            currentProgress_ = current;
+                                            totalProgress_ = total;
+                                            currentArticleTitle_ = title;
+                                            requestUpdate();
+                                          });
 
   isSyncing_ = false;
   localArticleCount_ = ArticleSyncService::getLocalArticleCount();

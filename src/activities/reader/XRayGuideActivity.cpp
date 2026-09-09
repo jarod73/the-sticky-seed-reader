@@ -26,9 +26,7 @@ void XRayGuideActivity::onEnter() {
   }
 }
 
-void XRayGuideActivity::onExit() {
-  Activity::onExit();
-}
+void XRayGuideActivity::onExit() { Activity::onExit(); }
 
 void XRayGuideActivity::fetchConceptDetails(const std::string& term) {
   isLoading_ = true;
@@ -49,7 +47,8 @@ void XRayGuideActivity::fetchConceptDetails(const std::string& term) {
     isFailed_ = true;
     conceptTitle_ = term;
     conceptSubtitle_ = "Character / Concept Guide";
-    conceptSummary_ = "Detailed online summary unavailable. Connect to Wi-Fi for full encyclopedic character background.";
+    conceptSummary_ =
+        "Detailed online summary unavailable. Connect to Wi-Fi for full encyclopedic character background.";
     requestUpdate();
     return;
   }
@@ -113,8 +112,8 @@ void XRayGuideActivity::render(RenderLock&&) {
   y += 16;
 
   // 3. Render Formatted Extract
-  TextWrapUtils::drawWrappedParagraph(renderer, UI_10_FONT_ID, 24, y, screenW - 48, (screenH - 50) - y,
-                                      conceptSummary_, EpdFontFamily::REGULAR, 6);
+  TextWrapUtils::drawWrappedParagraph(renderer, UI_10_FONT_ID, 24, y, screenW - 48, (screenH - 50) - y, conceptSummary_,
+                                      EpdFontFamily::REGULAR, 6);
 
   // 4. Footer Hint
   const auto labels = mappedInput.mapLabels("Return", "", "", "");

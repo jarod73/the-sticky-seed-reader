@@ -132,7 +132,8 @@ bool EpubReaderBookmarksActivity::handleCustomInput() {
   int ty = 0;
   if (!bookmarks.empty() && mappedInput.wasScreenTapped(tx, ty)) {
     if (tx > renderer.getScreenWidth() - 130 && ty < 55) {
-      if (NoteExporter::exportObsidianMarkdown(epub ? epub->getTitle() : "Book", epub ? epub->getAuthor() : "", bookmarks)) {
+      if (NoteExporter::exportObsidianMarkdown(epub ? epub->getTitle() : "Book", epub ? epub->getAuthor() : "",
+                                               bookmarks)) {
         GUI.drawPopup(renderer, "Notes Exported");
         requestUpdate();
       }

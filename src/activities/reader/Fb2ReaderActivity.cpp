@@ -68,9 +68,7 @@ bool Fb2ReaderActivity::pageTurn(const bool isForward) {
   return false;
 }
 
-bool Fb2ReaderActivity::isAtEndOfBook() const {
-  return pages_.empty() || (currentPage_ + 1 >= pages_.size());
-}
+bool Fb2ReaderActivity::isAtEndOfBook() const { return pages_.empty() || (currentPage_ + 1 >= pages_.size()); }
 
 bool Fb2ReaderActivity::parseFb2Xml(const std::string& xml) {
   if (xml.empty()) return false;

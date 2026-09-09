@@ -28,20 +28,19 @@ void WikipediaLookupActivity::onEnter() {
   errorMessage.clear();
 
   if (searchTerm.empty()) {
-    startActivityForResult(
-        std::make_unique<KeyboardEntryActivity>(renderer, mappedInput, "Search Wikipedia", "", 64),
-        [this](const ActivityResult& result) {
-          std::string text;
-          if (const auto* kb = std::get_if<KeyboardResult>(&result.data)) {
-            text = kb->text;
-          }
-          if (!text.empty()) {
-            searchTerm = text;
-            fetchSummary(searchTerm);
-          } else {
-            onGoHome();
-          }
-        });
+    startActivityForResult(std::make_unique<KeyboardEntryActivity>(renderer, mappedInput, "Search Wikipedia", "", 64),
+                           [this](const ActivityResult& result) {
+                             std::string text;
+                             if (const auto* kb = std::get_if<KeyboardResult>(&result.data)) {
+                               text = kb->text;
+                             }
+                             if (!text.empty()) {
+                               searchTerm = text;
+                               fetchSummary(searchTerm);
+                             } else {
+                               onGoHome();
+                             }
+                           });
   } else {
     fetchSummary(searchTerm);
   }
@@ -115,18 +114,17 @@ void WikipediaLookupActivity::loop() {
       return;
     } else if (ty >= renderer.getScreenHeight() - 50) {
       // Tap footer -> search new term
-      startActivityForResult(
-          std::make_unique<KeyboardEntryActivity>(renderer, mappedInput, "Search Wikipedia", "", 64),
-          [this](const ActivityResult& result) {
-            std::string text;
-            if (const auto* kb = std::get_if<KeyboardResult>(&result.data)) {
-              text = kb->text;
-            }
-            if (!text.empty()) {
-              searchTerm = text;
-              fetchSummary(searchTerm);
-            }
-          });
+      startActivityForResult(std::make_unique<KeyboardEntryActivity>(renderer, mappedInput, "Search Wikipedia", "", 64),
+                             [this](const ActivityResult& result) {
+                               std::string text;
+                               if (const auto* kb = std::get_if<KeyboardResult>(&result.data)) {
+                                 text = kb->text;
+                               }
+                               if (!text.empty()) {
+                                 searchTerm = text;
+                                 fetchSummary(searchTerm);
+                               }
+                             });
       return;
     }
   }
@@ -134,18 +132,17 @@ void WikipediaLookupActivity::loop() {
   if (mappedInput.wasReleased(MappedInputManager::Button::Back)) {
     onGoHome();
   } else if (mappedInput.wasReleased(MappedInputManager::Button::Confirm)) {
-    startActivityForResult(
-        std::make_unique<KeyboardEntryActivity>(renderer, mappedInput, "Search Wikipedia", "", 64),
-        [this](const ActivityResult& result) {
-          std::string text;
-          if (const auto* kb = std::get_if<KeyboardResult>(&result.data)) {
-            text = kb->text;
-          }
-          if (!text.empty()) {
-            searchTerm = text;
-            fetchSummary(searchTerm);
-          }
-        });
+    startActivityForResult(std::make_unique<KeyboardEntryActivity>(renderer, mappedInput, "Search Wikipedia", "", 64),
+                           [this](const ActivityResult& result) {
+                             std::string text;
+                             if (const auto* kb = std::get_if<KeyboardResult>(&result.data)) {
+                               text = kb->text;
+                             }
+                             if (!text.empty()) {
+                               searchTerm = text;
+                               fetchSummary(searchTerm);
+                             }
+                           });
   }
 }
 
@@ -187,8 +184,8 @@ void WikipediaLookupActivity::render(RenderLock&&) {
   y += 16;
 
   // Render extract with wrapping
-  TextWrapUtils::drawWrappedParagraph(renderer, scale.bodyFontId, 24, y, pageWidth - 48,
-                                      (pageHeight - 50) - y, extract, EpdFontFamily::REGULAR, 6);
+  TextWrapUtils::drawWrappedParagraph(renderer, scale.bodyFontId, 24, y, pageWidth - 48, (pageHeight - 50) - y, extract,
+                                      EpdFontFamily::REGULAR, 6);
 
   const auto labels = mappedInput.mapLabels("Exit", "New Search", "", "");
   GUI.drawButtonHints(renderer, labels.btn1, labels.btn2, labels.btn3, labels.btn4);

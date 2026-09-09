@@ -5,8 +5,10 @@
 #include <FontCacheManager.h>
 #include <FsHelpers.h>
 #include <GfxRenderer.h>
+#include <HalClock.h>
 #include <HalDisplay.h>
 #include <HalGPIO.h>
+#include <HalPowerManager.h>
 #include <HalStorage.h>
 #include <I18n.h>
 #include <Memory.h>
@@ -20,9 +22,6 @@
 #include <cstring>
 #include <limits>
 #include <string>
-
-#include <HalClock.h>
-#include <HalPowerManager.h>
 #if FREEINK_CAP_TEMP_HUMIDITY
 #include <EnvironmentSensor.h>
 #endif

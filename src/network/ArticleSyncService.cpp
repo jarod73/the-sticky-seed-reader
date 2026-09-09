@@ -26,7 +26,8 @@ bool ArticleSyncService::syncArticlesFromUrl(const std::string& endpointUrl, con
   LOG_INF("SYNC", "Syncing saved articles from: %s", endpointUrl.c_str());
 
   std::string response;
-  if (!HttpDownloader::fetchUrl(endpointUrl, response, apiToken.empty() ? "" : "bearer", apiToken) || response.empty()) {
+  if (!HttpDownloader::fetchUrl(endpointUrl, response, apiToken.empty() ? "" : "bearer", apiToken) ||
+      response.empty()) {
     result.message = "Failed to reach article sync endpoint";
     return false;
   }
@@ -71,8 +72,8 @@ bool ArticleSyncService::syncArticlesFromUrl(const std::string& endpointUrl, con
         const std::string destPath = std::string(ARTICLE_DIR) + "/" + filename + ".html";
         HalFile outFile;
         if (Storage.openFileForWrite("SYNC", destPath.c_str(), outFile)) {
-          std::string content = "<html><head><title>" + article.title + "</title></head><body><h1>" +
-                                article.title + "</h1>";
+          std::string content =
+              "<html><head><title>" + article.title + "</title></head><body><h1>" + article.title + "</h1>";
           for (const auto& p : article.paragraphs) {
             content += "<p>" + p + "</p>";
           }

@@ -26,7 +26,7 @@ class ReadingStatsStore : public PersistableStore<ReadingStatsStore> {
   uint32_t totalBooksFinished = 0;
   uint16_t averageWpm = 220;
   uint16_t currentDailyStreak = 0;
-  std::string lastReadDate;  // YYYY-MM-DD
+  std::string lastReadDate;                      // YYYY-MM-DD
   std::map<std::string, uint32_t> dailyMinutes;  // YYYY-MM-DD -> minutes
 
  public:

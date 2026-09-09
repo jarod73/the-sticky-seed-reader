@@ -5,6 +5,7 @@
 // don't duplicate the mbedTLS / wolfSSL branching.
 
 #include <string>
+
 #include "network/HttpDownloader.h"
 
 /**

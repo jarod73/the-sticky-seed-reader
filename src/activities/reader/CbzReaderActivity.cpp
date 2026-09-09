@@ -26,13 +26,9 @@ CbzReaderActivity::CbzReaderActivity(GfxRenderer& renderer, MappedInputManager& 
                                      const bool allowFastInitialRefresh)
     : ReaderActivity("CbzReader", renderer, mappedInput, std::move(bookPath), allowFastInitialRefresh) {}
 
-CbzReaderActivity::~CbzReaderActivity() {
-  Storage.remove(TEMP_CBZ_PAGE_PATH);
-}
+CbzReaderActivity::~CbzReaderActivity() { Storage.remove(TEMP_CBZ_PAGE_PATH); }
 
-bool CbzReaderActivity::loadBook() {
-  return indexArchive();
-}
+bool CbzReaderActivity::loadBook() { return indexArchive(); }
 
 std::string CbzReaderActivity::getBookTitle() const {
   const size_t slash = bookPath.find_last_of('/');
@@ -65,8 +61,8 @@ bool CbzReaderActivity::indexArchive() {
   ZipFile zip(bookPath);
 
   zip.enumerateFilePaths([this](std::string_view path) {
-    if (FsHelpers::hasJpgExtension(path) || FsHelpers::hasPngExtension(path) ||
-        FsHelpers::hasBmpExtension(path) || FsHelpers::hasGifExtension(path)) {
+    if (FsHelpers::hasJpgExtension(path) || FsHelpers::hasPngExtension(path) || FsHelpers::hasBmpExtension(path) ||
+        FsHelpers::hasGifExtension(path)) {
       // Ignore macOS metadata / resource forks
       if (path.find("__MACOSX") == std::string_view::npos && path.find("/.") == std::string_view::npos) {
         pageEntries_.emplace_back(path);
@@ -85,8 +81,8 @@ bool CbzReaderActivity::renderPageImage(const std::string& tempPath, const std::
 
   if (FsHelpers::hasJpgExtension(originalExt)) {
     ImageDimensions dimensions{};
-    if (!JpegToFramebufferConverter::getDimensionsStatic(tempPath, dimensions) ||
-        dimensions.width <= 0 || dimensions.height <= 0) {
+    if (!JpegToFramebufferConverter::getDimensionsStatic(tempPath, dimensions) || dimensions.width <= 0 ||
+        dimensions.height <= 0) {
       return false;
     }
 
@@ -102,8 +98,8 @@ bool CbzReaderActivity::renderPageImage(const std::string& tempPath, const std::
 
   if (FsHelpers::hasPngExtension(originalExt)) {
     ImageDimensions dimensions{};
-    if (!PngToFramebufferConverter::getDimensionsStatic(tempPath, dimensions) ||
-        dimensions.width <= 0 || dimensions.height <= 0) {
+    if (!PngToFramebufferConverter::getDimensionsStatic(tempPath, dimensions) || dimensions.width <= 0 ||
+        dimensions.height <= 0) {
       return false;
     }
 
@@ -178,7 +174,8 @@ void CbzReaderActivity::renderBook() {
     }
     Storage.remove(TEMP_CBZ_PAGE_PATH);
   } else {
-    renderer.drawCenteredText(UI_12_FONT_ID, renderer.getScreenHeight() / 2, "Failed to extract page from archive", true);
+    renderer.drawCenteredText(UI_12_FONT_ID, renderer.getScreenHeight() / 2, "Failed to extract page from archive",
+                              true);
   }
 
   // Draw Page Number Footer

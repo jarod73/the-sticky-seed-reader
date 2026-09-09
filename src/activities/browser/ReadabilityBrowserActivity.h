@@ -7,14 +7,7 @@
 #include "util/ButtonNavigator.h"
 #include "util/ReadabilityExtractor.h"
 
-enum class WebReaderState {
-  CHECK_WIFI,
-  WIFI_CONNECTING,
-  URL_INPUT,
-  FETCHING,
-  READING,
-  ERROR
-};
+enum class WebReaderState { CHECK_WIFI, WIFI_CONNECTING, URL_INPUT, FETCHING, READING, ERROR };
 
 class ReadabilityBrowserActivity final : public Activity {
  private:

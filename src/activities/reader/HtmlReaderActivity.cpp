@@ -47,9 +47,7 @@ bool HtmlReaderActivity::pageTurn(const bool isForward) {
   return false;
 }
 
-bool HtmlReaderActivity::isAtEndOfBook() const {
-  return pages_.empty() || (currentPage_ + 1 >= pages_.size());
-}
+bool HtmlReaderActivity::isAtEndOfBook() const { return pages_.empty() || (currentPage_ + 1 >= pages_.size()); }
 
 bool HtmlReaderActivity::loadAndParseHtml() {
   String content = Storage.readFile(bookPath.c_str());

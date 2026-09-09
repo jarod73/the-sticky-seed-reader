@@ -46,9 +46,7 @@ bool PdfReaderActivity::pageTurn(const bool isForward) {
   return false;
 }
 
-bool PdfReaderActivity::isAtEndOfBook() const {
-  return pages_.empty() || (currentPage_ + 1 >= pages_.size());
-}
+bool PdfReaderActivity::isAtEndOfBook() const { return pages_.empty() || (currentPage_ + 1 >= pages_.size()); }
 
 bool PdfReaderActivity::extractPdfText() {
   HalFile file;

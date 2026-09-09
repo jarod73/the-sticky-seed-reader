@@ -8,11 +8,11 @@
  * Struct representing a parsed, clean, and readable web article.
  */
 struct ReadabilityArticle {
-  std::string title;                   ///< Extracted article or webpage title
-  std::string byline;                  ///< Author / publication byline if available
-  std::string content;                 ///< Full plain-text article content
-  std::vector<std::string> paragraphs; ///< Distinct paragraphs ready for e-ink pagination
-  bool valid = false;                  ///< True if parsing succeeded and content was found
+  std::string title;                    ///< Extracted article or webpage title
+  std::string byline;                   ///< Author / publication byline if available
+  std::string content;                  ///< Full plain-text article content
+  std::vector<std::string> paragraphs;  ///< Distinct paragraphs ready for e-ink pagination
+  bool valid = false;                   ///< True if parsing succeeded and content was found
 };
 
 /**

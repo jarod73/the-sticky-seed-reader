@@ -17,9 +17,7 @@ void ReadingStatsActivity::onEnter() {
   requestUpdate();
 }
 
-void ReadingStatsActivity::onExit() {
-  Activity::onExit();
-}
+void ReadingStatsActivity::onExit() { Activity::onExit(); }
 
 void ReadingStatsActivity::loop() {
   Activity::loop();

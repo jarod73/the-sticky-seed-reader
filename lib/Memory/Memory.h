@@ -28,9 +28,7 @@ inline void* psram_calloc(size_t n, size_t size) {
   return calloc(n, size);
 }
 
-inline void psram_free(void* ptr) {
-  free(ptr);
-}
+inline void psram_free(void* ptr) { free(ptr); }
 
 // Nothrow versions of std::make_unique. Return nullptr on allocation failure
 // instead of calling abort() (the default when exceptions are disabled on ESP32).

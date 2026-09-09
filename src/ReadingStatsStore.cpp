@@ -63,8 +63,8 @@ bool ReadingStatsStore::fromJson(JsonVariantConst doc) {
     dailyMinutes[kv.key().c_str()] = kv.value().as<uint32_t>();
   }
 
-  LOG_INF("STATS", "Loaded reading stats: %u mins, %u pages, %u WPM, %u day streak",
-          totalReadingSeconds / 60, totalPagesRead, averageWpm, currentDailyStreak);
+  LOG_INF("STATS", "Loaded reading stats: %u mins, %u pages, %u WPM, %u day streak", totalReadingSeconds / 60,
+          totalPagesRead, averageWpm, currentDailyStreak);
   return true;
 }
 

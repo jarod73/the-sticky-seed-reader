@@ -8,13 +8,7 @@
 #include "util/ButtonNavigator.h"
 #include "util/RssFeedParser.h"
 
-enum class NewspaperState {
-  CHECK_WIFI,
-  WIFI_CONNECTING,
-  FETCHING,
-  DISPLAYING,
-  ERROR
-};
+enum class NewspaperState { CHECK_WIFI, WIFI_CONNECTING, FETCHING, DISPLAYING, ERROR };
 
 class MorningNewspaperActivity final : public Activity {
  private:

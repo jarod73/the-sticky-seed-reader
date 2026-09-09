@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+
 #include "activities/Activity.h"
 
 class WikipediaLookupActivity final : public Activity {
@@ -16,8 +17,7 @@ class WikipediaLookupActivity final : public Activity {
   void fetchSummary(const std::string& term);
 
  public:
-  explicit WikipediaLookupActivity(GfxRenderer& renderer, MappedInputManager& mappedInput,
-                                   std::string term = "");
+  explicit WikipediaLookupActivity(GfxRenderer& renderer, MappedInputManager& mappedInput, std::string term = "");
   void onEnter() override;
   void onExit() override;
   void loop() override;

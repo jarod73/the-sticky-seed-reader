@@ -13,8 +13,9 @@ namespace {
  */
 size_t findCaseInsensitive(std::string_view str, std::string_view sub, size_t pos = 0) {
   if (sub.empty() || pos >= str.size()) return std::string_view::npos;
-  auto it = std::search(str.begin() + pos, str.end(), sub.begin(), sub.end(),
-                        [](char c1, char c2) { return std::tolower(static_cast<unsigned char>(c1)) == std::tolower(static_cast<unsigned char>(c2)); });
+  auto it = std::search(str.begin() + pos, str.end(), sub.begin(), sub.end(), [](char c1, char c2) {
+    return std::tolower(static_cast<unsigned char>(c1)) == std::tolower(static_cast<unsigned char>(c2));
+  });
   return (it != str.end()) ? std::distance(str.begin(), it) : std::string_view::npos;
 }
 
@@ -22,8 +23,7 @@ size_t findCaseInsensitive(std::string_view str, std::string_view sub, size_t po
  * Checks if a given tag name matches any noise tag that should be filtered out.
  */
 bool isNoiseTag(std::string_view tag) {
-  return tag == "script" || tag == "style" || tag == "noscript" ||
-         tag == "nav" || tag == "header" || tag == "footer" ||
+  return tag == "script" || tag == "style" || tag == "noscript" || tag == "nav" || tag == "header" || tag == "footer" ||
          tag == "aside" || tag == "svg" || tag == "form";
 }
 
@@ -70,9 +70,11 @@ std::string ReadabilityExtractor::cleanContent(std::string_view html) {
     }
   }
 
-  std::string_view targetSlice = (articleStart != std::string_view::npos)
-      ? html.substr(articleStart, (articleEnd != std::string_view::npos) ? (articleEnd - articleStart) : (html.size() - articleStart))
-      : html;
+  std::string_view targetSlice =
+      (articleStart != std::string_view::npos)
+          ? html.substr(articleStart, (articleEnd != std::string_view::npos) ? (articleEnd - articleStart)
+                                                                             : (html.size() - articleStart))
+          : html;
 
   // 2. Linear single-pass sanitizer: filter out <script>...</script>, <style>...</style>, etc.
   std::string cleanHtml;
@@ -89,7 +91,8 @@ std::string ReadabilityExtractor::cleanContent(std::string_view html) {
       if (tagStart < closeAngle && targetSlice[tagStart] == '/') tagStart++;
 
       size_t tagEnd = tagStart;
-      while (tagEnd < closeAngle && !std::isspace(static_cast<unsigned char>(targetSlice[tagEnd])) && targetSlice[tagEnd] != '/') {
+      while (tagEnd < closeAngle && !std::isspace(static_cast<unsigned char>(targetSlice[tagEnd])) &&
+             targetSlice[tagEnd] != '/') {
         tagEnd++;
       }
 

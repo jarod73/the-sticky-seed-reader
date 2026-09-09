@@ -6,14 +6,14 @@
  * Live weather forecast dataset fetched from Open-Meteo (zero API key required).
  */
 struct WeatherForecast {
-  float currentTempC = 0.0f;     ///< Instantaneous 2-meter air temperature in Celsius
-  int currentHumidity = 0;       ///< Relative humidity percentage (0-100%)
-  float windSpeedKmh = 0.0f;     ///< Wind speed in kilometers per hour
-  int weatherCode = 0;           ///< WMO Weather interpretation code (0-99)
-  std::string conditionText;     ///< Human-readable weather condition text (e.g. "Partly Cloudy")
-  float tempMaxC = 0.0f;         ///< Daily maximum temperature in Celsius
-  float tempMinC = 0.0f;         ///< Daily minimum temperature in Celsius
-  bool valid = false;            ///< True if data was successfully fetched and decoded
+  float currentTempC = 0.0f;  ///< Instantaneous 2-meter air temperature in Celsius
+  int currentHumidity = 0;    ///< Relative humidity percentage (0-100%)
+  float windSpeedKmh = 0.0f;  ///< Wind speed in kilometers per hour
+  int weatherCode = 0;        ///< WMO Weather interpretation code (0-99)
+  std::string conditionText;  ///< Human-readable weather condition text (e.g. "Partly Cloudy")
+  float tempMaxC = 0.0f;      ///< Daily maximum temperature in Celsius
+  float tempMinC = 0.0f;      ///< Daily minimum temperature in Celsius
+  bool valid = false;         ///< True if data was successfully fetched and decoded
 };
 
 /**

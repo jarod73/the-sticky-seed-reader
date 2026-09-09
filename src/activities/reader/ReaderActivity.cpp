@@ -6,17 +6,17 @@
 
 #include <algorithm>
 
+#include "CbzReaderActivity.h"
 #include "CrossPointSettings.h"
 #include "CrossPointState.h"
 #include "EpubReaderActivity.h"
-#include "CbzReaderActivity.h"
-#include "HtmlReaderActivity.h"
 #include "Fb2ReaderActivity.h"
+#include "HtmlReaderActivity.h"
 #include "MobiReaderActivity.h"
 #include "PdfReaderActivity.h"
 #include "ReaderUtils.h"
-#include "RecentBooksStore.h"
 #include "ReadingStatsStore.h"
+#include "RecentBooksStore.h"
 #include "SdCardFontSystem.h"
 #include "TxtReaderActivity.h"
 #include "XtcReaderActivity.h"

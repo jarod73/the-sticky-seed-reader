@@ -72,9 +72,7 @@ bool CloudHttpClient::get(const std::string& url, const HttpDownloader::DataCall
   return HttpDownloader::fetchUrl(url, onData);
 }
 
-bool CloudHttpClient::fetchJson(const std::string& url, std::string& outJson) const {
-  return get(url, outJson);
-}
+bool CloudHttpClient::fetchJson(const std::string& url, std::string& outJson) const { return get(url, outJson); }
 
 int CloudHttpClient::postJson(const std::string& url, const std::string& body, std::string& outResponse) const {
   esp_http_client_config_t config = {};

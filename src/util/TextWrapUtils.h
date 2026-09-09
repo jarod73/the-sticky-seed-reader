@@ -33,9 +33,8 @@ class TextWrapUtils {
    * @param maxLines Optional cap on the number of returned lines (0 = unlimited).
    * @return A vector of wrapped lines.
    */
-  static std::vector<std::string> wrapToWidth(const GfxRenderer& renderer, int fontId,
-                                              std::string_view text, int maxWidthPixels,
-                                              size_t maxLines = 0);
+  static std::vector<std::string> wrapToWidth(const GfxRenderer& renderer, int fontId, std::string_view text,
+                                              int maxWidthPixels, size_t maxLines = 0);
 
   /**
    * Fast word-wrapper based on estimated character capacity per line.
@@ -45,8 +44,7 @@ class TextWrapUtils {
    * @param maxLines Optional cap on total lines (0 = unlimited).
    * @return A vector of wrapped lines.
    */
-  static std::vector<std::string> wrapToCharCount(std::string_view text, size_t maxCharsPerLine,
-                                                  size_t maxLines = 0);
+  static std::vector<std::string> wrapToCharCount(std::string_view text, size_t maxCharsPerLine, size_t maxLines = 0);
 
   /**
    * Renders a multi-line paragraph directly onto the display within a bounding box.
@@ -62,9 +60,8 @@ class TextWrapUtils {
    * @param extraLineSpacing Additional padding added between lines in pixels (default: 4).
    * @return The final Y coordinate reached after drawing all lines.
    */
-  static int drawWrappedParagraph(GfxRenderer& renderer, int fontId, int x, int y,
-                                  int maxWidth, int maxHeight, std::string_view text,
-                                  EpdFontFamily::Style style = EpdFontFamily::REGULAR,
+  static int drawWrappedParagraph(GfxRenderer& renderer, int fontId, int x, int y, int maxWidth, int maxHeight,
+                                  std::string_view text, EpdFontFamily::Style style = EpdFontFamily::REGULAR,
                                   int extraLineSpacing = 4);
 
   /**
@@ -77,8 +74,6 @@ class TextWrapUtils {
    * @param contentHeight Usable height of the content area (pixels).
    * @param outPages Output vector populated with formatted page text (lines joined by '\n').
    */
-  static void paginateParagraphs(const GfxRenderer& renderer, int fontId,
-                                 const std::vector<std::string>& paragraphs,
-                                 int contentWidth, int contentHeight,
-                                 std::vector<std::string>& outPages);
+  static void paginateParagraphs(const GfxRenderer& renderer, int fontId, const std::vector<std::string>& paragraphs,
+                                 int contentWidth, int contentHeight, std::vector<std::string>& outPages);
 };
