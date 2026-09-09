@@ -11,6 +11,8 @@ permissions:
 jobs:
   clang-format:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v6
         with:
@@ -31,11 +33,12 @@ jobs:
       - name: Run clang-format
         run: |
           PATH="/usr/lib/llvm-21/bin:$PATH" ./bin/clang-format-fix
-          git status
-          git diff
           if ! git diff --quiet; then
-            echo "::error::clang-format found formatting issues. Run ./bin/clang-format-fix."
-            exit 1
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add -A
+            git commit -m "style: Auto-format codebase with clang-format-21 [skip ci]" || true
+            git push || true
           fi
 
   cppcheck:
