@@ -27,6 +27,7 @@ class MorningNewspaperActivity final : public Activity {
 
   void checkAndConnectWifi();
   void loadNewspaperData();
+  void loadOfflineDigest();
   void openStoryInBrowser(size_t index);
 
  public:

@@ -86,17 +86,13 @@ RssFeed RssFeedParser::parse(std::string_view xml, size_t maxItems) {
   // Scan items (<item> for RSS 2.0, <entry> for Atom 1.0)
   size_t pos = 0;
   while (feed.items.size() < maxItems && pos < xml.size()) {
-    size_t itemStart = xml.find("<item>", pos);
+    size_t itemStart = xml.find("<item", pos);
     bool isAtom = false;
 
-    if (itemStart == std::string_view::npos) {
-      itemStart = xml.find("<item ", pos);
-    }
-
-    if (itemStart == std::string_view::npos) {
-      itemStart = xml.find("<entry>", pos);
-      if (itemStart == std::string_view::npos) itemStart = xml.find("<entry ", pos);
-      if (itemStart != std::string_view::npos) isAtom = true;
+    size_t entryStart = xml.find("<entry", pos);
+    if (entryStart != std::string_view::npos && (itemStart == std::string_view::npos || entryStart < itemStart)) {
+      itemStart = entryStart;
+      isAtom = true;
     }
 
     if (itemStart == std::string_view::npos) break;
