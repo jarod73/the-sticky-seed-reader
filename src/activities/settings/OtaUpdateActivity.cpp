@@ -162,7 +162,11 @@ void OtaUpdateActivity::render(RenderLock&&) {
     GUI.drawButtonHints(renderer, labels.btn1, labels.btn2, labels.btn3, labels.btn4);
   } else if (state == FINISHED) {
     renderer.drawCenteredText(UI_10_FONT_ID, top, tr(STR_UPDATE_COMPLETE), true, EpdFontFamily::BOLD);
-    renderer.drawCenteredText(UI_10_FONT_ID, top + height + metrics.verticalSpacing, tr(STR_POWER_ON_HINT));
+    const int hintY = top + height + metrics.verticalSpacing;
+    const Rect hintBounds{metrics.contentSidePadding, hintY, pageWidth - metrics.contentSidePadding * 2,
+                          pageHeight - hintY};
+    UITheme::drawCenteredWrappedText(renderer, hintBounds, UI_10_FONT_ID, tr(STR_RESTARTING_HINT), 3, true,
+                                     EpdFontFamily::REGULAR, UITheme::TextVerticalAlignment::TOP);
   }
 
   renderer.displayBuffer();
@@ -195,17 +199,17 @@ void OtaUpdateActivity::runUpdateInstall() {
     return;
   }
 
+  LOG_INF("OTA", "OTA firmware update complete, restarting device");
   {
     RenderLock lock(*this);
     state = FINISHED;
   }
   requestUpdateAndWait();
-  // Hold the completion screen briefly so the user sees it, then restart.
-  delay(3000);
-  {
-    RenderLock lock(*this);
-    state = SHUTTING_DOWN;
-  }
+  // Hold the completion screen briefly so the user sees it, then reboot.
+  delay(1500);
+  WiFi.disconnect(true);
+  delay(100);
+  ESP.restart();
 }
 
 void OtaUpdateActivity::loop() {
