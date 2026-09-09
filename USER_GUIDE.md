@@ -142,10 +142,15 @@ The Sticky Seed Reader delivers a premium, distraction-free reading experience:
 * **Zero-Latency PSRAM Pre-Rendering**: While you are reading a page, the next page is pre-rendered off-screen in 8MB PSRAM. Page turns happen in `<1ms` via direct frame buffer transfer.
 * **Advanced Typography**: Full support for soft hyphenation, kerning, line-height adjustment, paragraph spacing, and custom margin insets.
 * **Footnote Popups**: Tapping footnote numbers `[1]` opens an overlay card containing the note text without losing your place in the chapter.
-* **Multi-Format Engine**:
-  - **EPUB 2 / EPUB 3**: Full chapter parsing, embedded images, and CSS styling.
-  - **Plain Text (`.txt`)**: High-speed line wrapping and dynamic bookmarking.
-  - **XTC / XTCH**: Pre-rendered binary book format for instant startup.
+* **Comprehensive 8-Format Multi-Format Engine**:
+  - **EPUB 2 / EPUB 3 (`.epub`)**: Full chapter parsing, embedded images, and CSS stylesheet styling.
+  - **Comic & Manga Archives (`.cbz`, `.cbr`, `.zip`)**: Sequential image decoding directly into PSRAM with automatic aspect-ratio scaling, Floyd-Steinberg dithering, and page count HUD.
+  - **Cleaned Web Articles (`.html`, `.htm`, `.xhtml`)**: Strips advertisements, navigation bars, and scripts via `ReadabilityExtractor`, formatting local web articles into reflowable, paginated chapters.
+  - **FictionBook 2.0 (`.fb2`, `.fb2.zip`)**: Lightweight single-pass XML parser for structured headings, body paragraphs, and chapter metadata.
+  - **Mobipocket / PalmDOC (`.mobi`, `.prc`, `.azw`, `.azw3`)**: High-speed streaming LZ77 decompression supporting classic unencrypted PalmDOC e-books.
+  - **PDF Documents (`.pdf`)**: Native text operator extractor (`BT/ET`, `Tj`, `TJ`) for reading document contents without heavy desktop PDF engines.
+  - **Plain Text & Markdown (`.txt`, `.md`)**: High-speed line wrapping, customizable margin insets, and dynamic bookmarking.
+  - **XTC / XTCH (`.xtc`, `.xtch`)**: Pre-rendered binary book format for instant startup and zero-latency page turns.
 
 ---
 

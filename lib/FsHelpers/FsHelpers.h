@@ -61,8 +61,23 @@ inline bool hasTxtExtension(const String& fileName) {
   return hasTxtExtension(std::string_view{fileName.c_str(), fileName.length()});
 }
 
-// Check for .md extension (case-insensitive)
+// Check for .md or .markdown extension (case-insensitive)
 bool hasMarkdownExtension(std::string_view fileName);
+
+// Check for .cbz, .cbr, or .zip comic archive (case-insensitive)
+bool hasCbzExtension(std::string_view fileName);
+
+// Check for .html, .htm, or .xhtml web pages (case-insensitive)
+bool hasHtmlExtension(std::string_view fileName);
+
+// Check for .fb2 or .fb2.zip FictionBook (case-insensitive)
+bool hasFb2Extension(std::string_view fileName);
+
+// Check for .mobi, .prc, .azw, or .azw3 (case-insensitive)
+bool hasMobiExtension(std::string_view fileName);
+
+// Check for .pdf extension (case-insensitive)
+bool hasPdfExtension(std::string_view fileName);
 
 // Check for .css extension (case-insensitive)
 bool hasCssExtension(std::string_view fileName);

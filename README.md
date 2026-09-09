@@ -89,6 +89,16 @@ Unlike generic multi-device firmwares, **The Sticky Seed Reader** is purpose-bui
 ### 7. 🎙️ Digital Voice Memos
 * 16kHz 16-bit PDM digital microphone recording directly into 8MB Octal PSRAM with automatic RIFF WAV formatting.
 
+### 8. 📚 Comprehensive Multi-Format E-Reader Engine
+* **EPUB 2 / EPUB 3 (`.epub`)**: Full chapter styling, table of contents, embedded graphics, and font scaling.
+* **Comic & Manga Archives (`.cbz`, `.cbr`, `.zip`)**: Instant sequential graphic decoding directly into PSRAM with aspect-ratio scaling and dithering.
+* **Saved Web Articles (`.html`, `.htm`, `.xhtml`)**: Distraction-free reflowable article reader powered by the zero-copy `ReadabilityExtractor`.
+* **FictionBook 2.0 (`.fb2`, `.fb2.zip`)**: Structured single-pass XML parsing for classical Russian and European e-books.
+* **Mobipocket / PalmDOC (`.mobi`, `.prc`, `.azw`, `.azw3`)**: Palm Database streaming LZ77 decompression.
+* **PDF Documents (`.pdf`)**: Native text operator extractor (`BT/ET`, `Tj`, `TJ`) for reading document contents.
+* **Plain Text & Markdown (`.txt`, `.md`)**: High-speed line-wrapped reading with bookmarking.
+* **XTC / XTCH (`.xtc`, `.xtch`)**: Pre-rendered binary e-book cache format for $<1\text{ms}$ startup.
+
 ---
 
 ## 🚀 Getting Started
