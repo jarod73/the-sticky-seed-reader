@@ -5,6 +5,8 @@
 #include <HalStorage.h>
 #include <Logging.h>
 
+#include <algorithm>
+
 #include "CrossPointSettings.h"
 #include "MappedInputManager.h"
 #include "components/UITheme.h"
@@ -96,13 +98,10 @@ bool PdfReaderActivity::extractPdfText() {
       std::string textSnippet = chunk.substr(openParen + 1, closeParen - openParen - 1);
 
       // Filter out binary/unprintable streams
-      bool isPrintable = true;
-      for (char c : textSnippet) {
-        if (static_cast<unsigned char>(c) < 32 && c != '\n' && c != '\r' && c != '\t') {
-          isPrintable = false;
-          break;
-        }
-      }
+      const bool isPrintable = std::all_of(textSnippet.begin(), textSnippet.end(), [](char c) {
+        const auto uc = static_cast<unsigned char>(c);
+        return uc >= 32 || c == '\n' || c == '\r' || c == '\t';
+      });
 
       if (isPrintable && !textSnippet.empty()) {
         if (!currentParagraph.empty()) currentParagraph += " ";

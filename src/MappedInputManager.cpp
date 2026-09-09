@@ -29,7 +29,7 @@ void MappedInputManager::update() const {
       buzzer.begin();
       buzzerInit = true;
     }
-    buzzer.click(2400, 10);
+    buzzer.tone(2400, 10);
   }
 #endif
   for (uint8_t value = 0; value <= static_cast<uint8_t>(Button::ScreenDown); ++value) {

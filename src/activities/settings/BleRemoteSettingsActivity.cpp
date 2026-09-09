@@ -106,7 +106,6 @@ void BleRemoteSettingsActivity::loop() {
 
 void BleRemoteSettingsActivity::render(RenderLock&&) {
   const int screenW = renderer.getScreenWidth();
-  const int screenH = renderer.getScreenHeight();
 
   renderer.clearScreen(0xFF);
   GUI.drawHeader(renderer, Rect{0, 0, screenW, 40}, "Bluetooth Page-Turner Remotes");

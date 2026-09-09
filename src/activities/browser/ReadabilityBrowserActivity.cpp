@@ -272,7 +272,10 @@ void ReadabilityBrowserActivity::render(RenderLock&&) {
   if (state == WebReaderState::READING) {
     // Header
     std::string headerTitle = article.title.empty() ? "Web Article" : article.title;
-    if (headerTitle.length() > 40) headerTitle = headerTitle.substr(0, 37) + "...";
+    if (headerTitle.length() > 40) {
+      headerTitle.erase(37);
+      headerTitle += "...";
+    }
     GUI.drawHeader(renderer, Rect{0, 0, pageWidth, 40}, headerTitle.c_str());
 
     // Page text

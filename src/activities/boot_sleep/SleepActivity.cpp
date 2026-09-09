@@ -613,20 +613,14 @@ void SleepActivity::renderAmbientClimateWidget() const {
   if (halClock.isAvailable()) {
     char timeBuf[16] = {0};
     if (halClock.formatTime(timeBuf, sizeof(timeBuf), SETTINGS.clockUtcOffsetQ, SETTINGS.clockFormat == 1)) {
-      if (offset > 0) {
-        offset += snprintf(banner + offset, sizeof(banner) - offset, "   •   %s", timeBuf);
-      } else {
-        offset += snprintf(banner + offset, sizeof(banner) - offset, "%s", timeBuf);
-      }
+      const char* sep = (offset > 0) ? "   •   " : "";
+      offset += snprintf(banner + offset, sizeof(banner) - offset, "%s%s", sep, timeBuf);
     }
   }
 
   const uint16_t batteryPct = powerManager.getBatteryPercentage();
-  if (offset > 0) {
-    snprintf(banner + offset, sizeof(banner) - offset, "   •   %u%%", batteryPct);
-  } else {
-    snprintf(banner + offset, sizeof(banner) - offset, "Battery: %u%%", batteryPct);
-  }
+  const char* sep = (offset > 0) ? "   •   " : "Battery: ";
+  snprintf(banner + offset, sizeof(banner) - offset, "%s%u%%", sep, batteryPct);
 
   const int bannerY = pageHeight - 32;
   renderer.drawLine(24, bannerY - 10, pageWidth - 24, bannerY - 10);

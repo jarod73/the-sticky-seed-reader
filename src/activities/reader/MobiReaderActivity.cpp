@@ -60,12 +60,12 @@ bool MobiReaderActivity::decompressPalmDoc(const uint8_t* in, size_t inLen, std:
     const uint8_t b = in[i++];
     if (b == 0x00) {
       out.push_back('\0');
-    } else if (b >= 0x01 && b <= 0x08) {
+    } else if (b <= 0x08) {
       // Literal sequence of length b
       for (uint8_t k = 0; k < b && i < inLen; ++k) {
         out.push_back(static_cast<char>(in[i++]));
       }
-    } else if (b >= 0x09 && b <= 0x7f) {
+    } else if (b <= 0x7f) {
       // Single literal byte
       out.push_back(static_cast<char>(b));
     } else if (b >= 0x80 && b <= 0xbf) {

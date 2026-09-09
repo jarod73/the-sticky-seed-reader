@@ -31,7 +31,10 @@ jobs:
       - name: Run clang-format
         run: |
           PATH="/usr/lib/llvm-21/bin:$PATH" ./bin/clang-format-fix
-          git diff --exit-code || (echo "Please run 'bin/clang-format-fix' to fix formatting issues" && exit 1)
+          if ! git diff --exit-code; then
+            echo "::error::clang-format found formatting issues. Run ./bin/clang-format-fix."
+            exit 1
+          fi
 
   cppcheck:
     runs-on: ubuntu-latest
