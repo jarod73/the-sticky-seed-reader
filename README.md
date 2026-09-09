@@ -43,6 +43,27 @@ Unlike generic multi-device firmwares, **The Sticky Seed Reader** is purpose-bui
 
 ---
 
+## 🏆 Industry Comparison: The Sticky Seed Reader vs. Top E-Readers
+
+How does **The Sticky Seed Reader** on the Seeed Studio reTerminal Sticky compare against commercial flagship e-readers?
+
+| Capability / Category | The Sticky Seed Reader (ESP32-S3) | Amazon Kindle (Paperwhite / Oasis) | Rakuten Kobo (Clara / Libra) | Onyx Boox (Palma / Page) |
+|---|---|---|---|---|
+| **Platform Openness** | 🟢 **100% Open Source (GPL-3.0)** — Zero telemetry, no forced account login | 🔴 **Proprietary Walled Garden** (Amazon Account lock-in, locked OS) | 🟡 **Proprietary Linux** (Semi-open, sideloading supported) | 🟡 **Proprietary Android** (Google Play, proprietary launcher) |
+| **Document Formats** | 🟢 **EPUB, MOBI, CBZ, FB2, PDF, TXT, HTML, XTC** | 🔴 **KFX, AZW3, MOBI (Deprecated)**; EPUB converted via cloud | 🟡 **EPUB, KEPUB, PDF, MOBI, CBZ, TXT** | 🟢 **EPUB, PDF, MOBI, CBZ, FB2, TXT, DOCX** (via Android apps) |
+| **Public Library Access** | 🟢 **Native Open Library & Internet Archive direct downloads** + Pre-loaded OPDS feeds | 🟡 **OverDrive / Libby (US only)** via Amazon cloud delivery | 🟢 **OverDrive / Libby direct integration** | 🟢 **Libby / Hoopla Android Apps** via Google Play Store |
+| **Ambient Intelligence** | 🟢 **The Daily Sticky**: Live weather, room climate (SHT40 Temp/Humidity), & RSS morning paper | 🔴 **None** (Static lockscreen ad/book cover) | 🔴 **None** (Static book cover screensaver) | 🟡 **Android Widgets** (High battery drain, no hardware sensors) |
+| **Study & Note Export** | 🟢 **One-Tap Anki TSV (`.tsv`) + Obsidian Markdown (`.md`)** with YAML frontmatter | 🔴 **Proprietary Highlights** (Export limited by DRM to email) | 🟡 **Pocket / Readwise Export** (Requires third-party sync) | 🟢 **Android Note Apps** (Obsidian, AnkiDroid supported) |
+| **Contextual Dossiers** | 🟢 **Wikipedia X-Ray Guide**: 1-screen character & historical concept summaries over Wi-Fi | 🟢 **Amazon X-Ray** (Curated Amazon metadata for select store books) | 🔴 **None** (Basic dictionary & Wikipedia web lookup) | 🟡 **Android Browser / Wikipedia App** |
+| **Hardware Sensors** | 🟢 **Sensirion SHT40 Climate, TI BQ27220 Fuel Gauge, Knowles PDM Mic, Piezo Buzzer** | 🔴 **Ambient light sensor only** | 🔴 **Ambient light sensor only** | 🟡 **Microphone / Speaker on select models** (No climate sensors) |
+| **Audio & Voice Memos**| 🟢 **16kHz PDM Digital Mic to PSRAM WAV** + Piezo 2.4kHz acoustic touch clicks | 🔴 **Audible Bluetooth playback only** (No microphone or voice notes) | 🔴 **Audiobooks playback only** (No microphone or voice notes) | 🟢 **Audiobook playback & voice recording via Android apps** |
+| **Hands-Free Remotes** | 🟢 **Native BLE HID Remote & Ring Controller Pairing** | 🔴 **No native BLE remote support** (Requires physical page-turner clamp) | 🔴 **No native BLE remote support** (Requires physical page-turner clamp) | 🟢 **Bluetooth BLE / Presentation remotes supported** |
+| **Companion Protocol** | 🟢 **921,600 Baud WebSerial CLI, Web Portal, Calibre & KOReader Sync** | 🔴 **Send-to-Kindle Cloud / MTP USB** | 🟡 **Calibre USB / Dropbox / Google Drive** | 🟢 **BooxDrop, Web Transfer, Google Drive** |
+| **Battery Life & Power**| 🟢 **RTC Deep Sleep (<15µA)** — 3+ weeks standalone battery life | 🟢 **4–10 weeks** (Ultra-low-power proprietary SoC) | 🟢 **4–8 weeks** (Low-power Linux kernel) | 🔴 **1–4 days** (Heavy full Android OS background drain) |
+| **Hardware Hackability**| 🟢 **Full GPIO / I²C / UART / SPI expansion**, ESP-IDF/Arduino C++ firmware | 🔴 **Locked hardware**, non-expandable | 🟡 **UART serial header accessible** (No external sensor bus) | 🔴 **Locked firmware**, non-expandable |
+
+---
+
 ## 🍃 Onboard Hardware Specifications
 
 | Component | Specification | Integration in Firmware |
