@@ -597,33 +597,39 @@ void SleepActivity::renderAmbientClimateWidget() const {
   const auto pageWidth = renderer.getScreenWidth();
   const auto pageHeight = renderer.getScreenHeight();
 
-  char banner[128] = {0};
-  size_t offset = 0;
+  std::string banner;
 
 #if FREEINK_CAP_TEMP_HUMIDITY
   EnvironmentSensor envSensor;
   float tempC = 0.0f;
   float humidityPct = 0.0f;
   if (envSensor.begin() && envSensor.read(tempC, humidityPct)) {
-    offset += snprintf(banner + offset, sizeof(banner) - offset, "%.1f°C  %.0f%% RH", tempC, humidityPct);
+    char buf[32];
+    snprintf(buf, sizeof(buf), "%.1f°C  %.0f%% RH", tempC, humidityPct);
+    banner += buf;
   }
 #endif
 
   if (halClock.isAvailable()) {
     char timeBuf[16] = {0};
     if (halClock.formatTime(timeBuf, sizeof(timeBuf), SETTINGS.clockUtcOffsetQ, SETTINGS.clockFormat == 1)) {
-      const char* sep = (offset > 0) ? "   •   " : "";
-      offset += snprintf(banner + offset, sizeof(banner) - offset, "%s%s", sep, timeBuf);
+      if (!banner.empty()) banner += "   •   ";
+      banner += timeBuf;
     }
   }
 
   const uint16_t batteryPct = powerManager.getBatteryPercentage();
-  const char* sep = (offset > 0) ? "   •   " : "Battery: ";
-  snprintf(banner + offset, sizeof(banner) - offset, "%s%u%%", sep, batteryPct);
+  char batBuf[32];
+  if (!banner.empty()) {
+    snprintf(batBuf, sizeof(batBuf), "   •   %u%%", batteryPct);
+  } else {
+    snprintf(batBuf, sizeof(batBuf), "Battery: %u%%", batteryPct);
+  }
+  banner += batBuf;
 
   const int bannerY = pageHeight - 32;
   renderer.drawLine(24, bannerY - 10, pageWidth - 24, bannerY - 10);
-  renderer.drawCenteredText(SMALL_FONT_ID, bannerY + 2, banner);
+  renderer.drawCenteredText(SMALL_FONT_ID, bannerY + 2, banner.c_str());
 }
 
 // Sleep screens paint with a single HALF refresh (stock parity): the OEM X4

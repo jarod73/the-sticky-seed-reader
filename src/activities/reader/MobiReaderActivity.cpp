@@ -66,7 +66,7 @@ bool MobiReaderActivity::decompressPalmDoc(const uint8_t* in, size_t inLen, std:
     } else if (b <= 0x7f) {
       // Single literal byte
       out.push_back(static_cast<char>(b));
-    } else if (b >= 0x80 && b <= 0xbf) {
+    } else if (b <= 0xbf) {
       // Distance/length pair
       if (i >= inLen) break;
       const uint8_t next = in[i++];
