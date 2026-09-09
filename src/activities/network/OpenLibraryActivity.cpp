@@ -237,8 +237,8 @@ void OpenLibraryActivity::render(RenderLock&&) {
   GUI.drawHeader(renderer, Rect{0, 0, screenW, 40}, "Open Library Public Books");
 
   if (isLoading_) {
-    renderer.drawCenteredText(UI_12_FONT_ID, screenH / 2 - 20, "Searching Catalog...", true, EpdFontFamily::BOLD);
-    renderer.drawCenteredText(UI_10_FONT_ID, screenH / 2 + 15, currentQuery_.c_str(), true);
+    Rect popupRect = GUI.drawPopup(renderer, "Searching Public Catalog...");
+    GUI.fillPopupProgress(renderer, popupRect, 50);
     renderer.displayBuffer(HalDisplay::FAST_REFRESH);
     return;
   }

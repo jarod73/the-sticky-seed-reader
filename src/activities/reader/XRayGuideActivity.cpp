@@ -93,8 +93,8 @@ void XRayGuideActivity::render(RenderLock&&) {
   GUI.drawHeader(renderer, Rect{0, 0, screenW, 40}, "X-Ray: Character & Concept Guide");
 
   if (isLoading_) {
-    renderer.drawCenteredText(UI_12_FONT_ID, screenH / 2 - 20, "Analyzing Context...", true, EpdFontFamily::BOLD);
-    renderer.drawCenteredText(UI_10_FONT_ID, screenH / 2 + 15, targetTerm_.c_str(), true);
+    Rect popupRect = GUI.drawPopup(renderer, "Analyzing Context & Dossier...");
+    GUI.fillPopupProgress(renderer, popupRect, 65);
     renderer.displayBuffer(HalDisplay::FAST_REFRESH);
     return;
   }

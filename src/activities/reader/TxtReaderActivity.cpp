@@ -88,7 +88,8 @@ void TxtReaderActivity::buildPageIndex(GfxRenderer& renderer) {
 
   LOG_DBG("TRS", "Building page index for %zu bytes...", fileSize);
 
-  GUI.drawPopup(renderer, tr(STR_INDEXING));
+  Rect popupRect = GUI.drawPopup(renderer, tr(STR_INDEXING));
+  GUI.fillPopupProgress(renderer, popupRect, 5);
 
   while (offset < fileSize) {
     std::vector<std::string> tempLines;
@@ -108,8 +109,11 @@ void TxtReaderActivity::buildPageIndex(GfxRenderer& renderer) {
       pageOffsets.push_back(offset);
     }
 
-    // Yield to other tasks periodically
+    // Yield and update progress periodically
     if (pageOffsets.size() % 20 == 0) {
+      if (fileSize > 0) {
+        GUI.fillPopupProgress(renderer, popupRect, (offset * 100) / fileSize);
+      }
       vTaskDelay(1);
     }
   }

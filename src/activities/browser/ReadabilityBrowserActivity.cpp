@@ -255,9 +255,8 @@ void ReadabilityBrowserActivity::render(RenderLock&&) {
   renderer.clearScreen();
 
   if (state == WebReaderState::FETCHING) {
-    GUI.drawHeader(renderer, Rect{0, 0, pageWidth, 40}, "Readability Web Browser");
-    renderer.drawCenteredText(scale.bodyFontId, pageHeight / 2 - 20, tr(STR_LOADING), true, EpdFontFamily::BOLD);
-    renderer.drawCenteredText(scale.smallFontId, pageHeight / 2 + 15, currentUrl.c_str());
+    Rect popupRect = GUI.drawPopup(renderer, tr(STR_LOADING));
+    GUI.fillPopupProgress(renderer, popupRect, 65);
     renderer.displayBuffer(HalDisplay::FAST_REFRESH);
     return;
   }

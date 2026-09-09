@@ -159,8 +159,8 @@ void WikipediaLookupActivity::render(RenderLock&&) {
   GUI.drawHeader(renderer, Rect{0, 0, pageWidth, 40}, "Wikipedia Encyclopedia");
 
   if (loading) {
-    renderer.drawCenteredText(scale.bodyFontId, pageHeight / 2 - 20, tr(STR_LOADING), true, EpdFontFamily::BOLD);
-    renderer.drawCenteredText(scale.smallFontId, pageHeight / 2 + 15, searchTerm.c_str());
+    Rect popupRect = GUI.drawPopup(renderer, tr(STR_LOADING));
+    GUI.fillPopupProgress(renderer, popupRect, 60);
     renderer.displayBuffer(HalDisplay::FAST_REFRESH);
     return;
   }

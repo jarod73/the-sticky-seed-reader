@@ -314,10 +314,10 @@ void MorningNewspaperActivity::render(RenderLock&&) {
   renderer.clearScreen(0xFF);
 
   if (state == NewspaperState::FETCHING || state == NewspaperState::WIFI_CONNECTING) {
-    GUI.drawHeader(renderer, Rect{0, 0, pageWidth, 40}, "The Daily Sticky");
-    renderer.drawCenteredText(UI_12_FONT_ID, pageHeight / 2 - 20, "Loading Morning Edition...", true,
-                              EpdFontFamily::BOLD);
-    renderer.drawCenteredText(SMALL_FONT_ID, pageHeight / 2 + 15, "Fetching live news feeds & weather forecast...");
+    const char* msg = (state == NewspaperState::WIFI_CONNECTING) ? "Connecting to Wi-Fi..." : "Fetching News & Weather...";
+    const int progress = (state == NewspaperState::WIFI_CONNECTING) ? 35 : 75;
+    Rect popupRect = GUI.drawPopup(renderer, msg);
+    GUI.fillPopupProgress(renderer, popupRect, progress);
     renderer.drawCenteredText(SMALL_FONT_ID, pageHeight - 30, "Tap anywhere or press Back to return home", true,
                               EpdFontFamily::ITALIC);
     renderer.displayBuffer(HalDisplay::FAST_REFRESH);
