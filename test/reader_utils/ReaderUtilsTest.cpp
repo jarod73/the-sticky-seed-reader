@@ -19,9 +19,7 @@ inline bool isAtEndOfBook(size_t currentPage, size_t totalPages) {
   return (totalPages > 0) && (currentPage >= totalPages);
 }
 
-inline size_t getReturnFromEndOfBookPage(size_t totalPages) {
-  return totalPages > 0 ? totalPages - 1 : 0;
-}
+inline size_t getReturnFromEndOfBookPage(size_t totalPages) { return totalPages > 0 ? totalPages - 1 : 0; }
 }  // namespace
 
 TEST(ReaderUtilsTest, CachePathDeterminism) {
