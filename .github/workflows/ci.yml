@@ -77,7 +77,15 @@ jobs:
           restore-keys: pio-${{ runner.os }}-
 
       - name: Run cppcheck
-        run: pio check --fail-on-defect low --fail-on-defect medium --fail-on-defect high
+        run: |
+          set -o pipefail
+          pio check --fail-on-defect low --fail-on-defect medium --fail-on-defect high 2>&1 | tee cppcheck.log || {
+            echo "## Cppcheck Output" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            cat cppcheck.log >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          }
 
   build:
     name: Build ${{ matrix.env }}
