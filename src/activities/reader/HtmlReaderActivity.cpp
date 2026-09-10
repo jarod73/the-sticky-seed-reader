@@ -6,7 +6,7 @@
 #include <Logging.h>
 
 HtmlReaderActivity::HtmlReaderActivity(GfxRenderer& renderer, MappedInputManager& mappedInput, std::string bookPath,
-                                       const bool allowFastInitialRefresh)
+                                       bool allowFastInitialRefresh)
     : ParagraphReaderActivity("HtmlReader", renderer, mappedInput, std::move(bookPath), allowFastInitialRefresh) {}
 
 bool HtmlReaderActivity::loadBook() {

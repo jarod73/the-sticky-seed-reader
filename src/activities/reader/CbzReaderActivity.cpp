@@ -25,7 +25,7 @@ constexpr char TEMP_CBZ_PAGE_PATH[] = "/.cbz_page.tmp";
 }
 
 CbzReaderActivity::CbzReaderActivity(GfxRenderer& renderer, MappedInputManager& mappedInput, std::string bookPath,
-                                     const bool allowFastInitialRefresh)
+                                     bool allowFastInitialRefresh)
     : ReaderActivity("CbzReader", renderer, mappedInput, std::move(bookPath), allowFastInitialRefresh) {}
 
 CbzReaderActivity::~CbzReaderActivity() { Storage.remove(TEMP_CBZ_PAGE_PATH); }
@@ -45,7 +45,7 @@ std::string CbzReaderActivity::getBookTitle() const {
 
 std::string CbzReaderActivity::getCachePath() const { return ReaderUtils::getCachePathForBook(bookPath, "comic"); }
 
-bool CbzReaderActivity::pageTurn(const bool isForward) {
+bool CbzReaderActivity::pageTurn(bool isForward) {
   if (isForward) {
     if (currentPage_ < pageEntries_.size()) {
       currentPage_++;
@@ -62,7 +62,7 @@ bool CbzReaderActivity::pageTurn(const bool isForward) {
   return false;
 }
 
-bool CbzReaderActivity::skipPages(const int amount) {
+bool CbzReaderActivity::skipPages(int amount) {
   int newPage = static_cast<int>(currentPage_) + amount;
   if (newPage < 0) newPage = 0;
   if (newPage > static_cast<int>(pageEntries_.size())) newPage = static_cast<int>(pageEntries_.size());

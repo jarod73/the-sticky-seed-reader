@@ -16,13 +16,13 @@
 class CbzReaderActivity final : public ReaderActivity {
  public:
   CbzReaderActivity(GfxRenderer& renderer, MappedInputManager& mappedInput, std::string bookPath,
-                    const bool allowFastInitialRefresh = false);
+                    bool allowFastInitialRefresh = false);
   ~CbzReaderActivity() override;
 
   bool loadBook() override;
   std::string getBookTitle() const override;
-  bool pageTurn(const bool isForward) override;
-  bool skipPages(const int amount) override;
+  bool pageTurn(bool isForward) override;
+  bool skipPages(int amount) override;
   bool isAtEndOfBook() const override;
   void onReturnFromEndOfBook() override;
   void renderBook() override;

@@ -23,7 +23,7 @@ class ParagraphReaderActivity : public ReaderActivity {
   bool isLoaded_ = false;
 
   ParagraphReaderActivity(const char* name, GfxRenderer& renderer, MappedInputManager& mappedInput,
-                          std::string bookPath, const bool allowFastInitialRefresh = false);
+                          std::string bookPath, bool allowFastInitialRefresh = false);
 
   void paginate();
   void saveProgress() const;
@@ -35,8 +35,8 @@ class ParagraphReaderActivity : public ReaderActivity {
 
   std::string getBookTitle() const override;
   std::string getBookAuthor() const override { return author_; }
-  bool pageTurn(const bool isForward) override;
-  bool skipPages(const int amount) override;
+  bool pageTurn(bool isForward) override;
+  bool skipPages(int amount) override;
   bool isAtEndOfBook() const override;
   void onReturnFromEndOfBook() override;
   void renderBook() override;

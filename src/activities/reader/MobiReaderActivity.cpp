@@ -10,7 +10,7 @@
 #include "util/ReadabilityExtractor.h"
 
 MobiReaderActivity::MobiReaderActivity(GfxRenderer& renderer, MappedInputManager& mappedInput, std::string bookPath,
-                                       const bool allowFastInitialRefresh)
+                                       bool allowFastInitialRefresh)
     : ParagraphReaderActivity("MobiReader", renderer, mappedInput, std::move(bookPath), allowFastInitialRefresh) {}
 
 bool MobiReaderActivity::loadBook() {
@@ -49,7 +49,8 @@ bool MobiReaderActivity::decompressPalmDoc(const uint8_t* in, size_t inLen, std:
 
       const size_t startPos = out.size() - dist;
       for (size_t k = 0; k < len; ++k) {
-        out.push_back(out[startPos + k]);
+        const char c = out[startPos + k];
+        out.push_back(c);
       }
     } else {
       // Space + character (0xc0..0xff)

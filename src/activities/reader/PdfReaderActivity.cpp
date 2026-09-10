@@ -8,7 +8,7 @@
 #include <algorithm>
 
 PdfReaderActivity::PdfReaderActivity(GfxRenderer& renderer, MappedInputManager& mappedInput, std::string bookPath,
-                                     const bool allowFastInitialRefresh)
+                                     bool allowFastInitialRefresh)
     : ParagraphReaderActivity("PdfReader", renderer, mappedInput, std::move(bookPath), allowFastInitialRefresh) {}
 
 bool PdfReaderActivity::loadBook() {

@@ -14,6 +14,14 @@ inline size_t clampPageSkip(size_t currentPage, int amount, size_t totalPages) {
   if (newPage > static_cast<int>(totalPages)) return totalPages;
   return static_cast<size_t>(newPage);
 }
+
+inline bool isAtEndOfBook(size_t currentPage, size_t totalPages) {
+  return (totalPages > 0) && (currentPage >= totalPages);
+}
+
+inline size_t getReturnFromEndOfBookPage(size_t totalPages) {
+  return totalPages > 0 ? totalPages - 1 : 0;
+}
 }  // namespace
 
 TEST(ReaderUtilsTest, CachePathDeterminism) {
@@ -38,21 +46,19 @@ TEST(ReaderUtilsTest, CachePathPrefix) {
 }
 
 TEST(ReaderUtilsTest, EndOfBookPageBounds) {
-  const size_t totalPages = 5;
-  // Page indices: 0, 1, 2, 3, 4.
+  // Page indices: 0, 1, 2, 3, 4 with totalPages = 5
   // When reading the last page (index 4):
-  size_t currentPage = 4;
-  bool atEnd = (currentPage >= totalPages);
-  EXPECT_FALSE(atEnd);  // Final page must NOT trigger end-of-book sentinel yet!
+  EXPECT_FALSE(isAtEndOfBook(4, 5));
 
-  // Turning forward past the last page:
-  currentPage++;
-  atEnd = (currentPage >= totalPages);
-  EXPECT_TRUE(atEnd);  // Now sentinel is reached!
+  // Turning forward past the last page (index 5):
+  EXPECT_TRUE(isAtEndOfBook(5, 5));
+
+  // Beyond last page (index 6):
+  EXPECT_TRUE(isAtEndOfBook(6, 5));
 
   // Turning back from end-of-book returns to last valid page:
-  size_t returnPage = totalPages > 0 ? totalPages - 1 : 0;
-  EXPECT_EQ(returnPage, 4u);
+  EXPECT_EQ(getReturnFromEndOfBookPage(5), 4u);
+  EXPECT_EQ(getReturnFromEndOfBookPage(0), 0u);
 }
 
 TEST(ReaderUtilsTest, SkipPagesBoundsClamping) {

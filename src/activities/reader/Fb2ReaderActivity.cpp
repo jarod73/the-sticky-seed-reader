@@ -7,14 +7,14 @@
 #include <ZipFile.h>
 
 Fb2ReaderActivity::Fb2ReaderActivity(GfxRenderer& renderer, MappedInputManager& mappedInput, std::string bookPath,
-                                     const bool allowFastInitialRefresh)
+                                     bool allowFastInitialRefresh)
     : ParagraphReaderActivity("Fb2Reader", renderer, mappedInput, std::move(bookPath), allowFastInitialRefresh) {}
 
 bool Fb2ReaderActivity::loadBook() {
   std::string xmlData;
   if (FsHelpers::checkFileExtension(bookPath, ".fb2.zip") || FsHelpers::checkFileExtension(bookPath, ".zip")) {
     ZipFile zip(bookPath);
-    zip.enumerateFilePaths([this, &zip, &xmlData](std::string_view path) {
+    zip.enumerateFilePaths([&zip, &xmlData](std::string_view path) {
       if (FsHelpers::checkFileExtension(path, ".fb2") && xmlData.empty()) {
         size_t sz = 0;
         uint8_t* raw = zip.readFileToMemory(std::string(path).c_str(), &sz);

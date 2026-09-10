@@ -14,7 +14,7 @@
 
 ParagraphReaderActivity::ParagraphReaderActivity(const char* name, GfxRenderer& renderer,
                                                  MappedInputManager& mappedInput, std::string bookPath,
-                                                 const bool allowFastInitialRefresh)
+                                                 bool allowFastInitialRefresh)
     : ReaderActivity(name, renderer, mappedInput, std::move(bookPath), allowFastInitialRefresh) {}
 
 std::string ParagraphReaderActivity::getBookTitle() const {
@@ -27,7 +27,7 @@ std::string ParagraphReaderActivity::getBookTitle() const {
 
 std::string ParagraphReaderActivity::getCachePath() const { return ReaderUtils::getCachePathForBook(bookPath, "book"); }
 
-bool ParagraphReaderActivity::pageTurn(const bool isForward) {
+bool ParagraphReaderActivity::pageTurn(bool isForward) {
   if (isForward) {
     if (currentPage_ < pages_.size()) {
       currentPage_++;
@@ -44,7 +44,7 @@ bool ParagraphReaderActivity::pageTurn(const bool isForward) {
   return false;
 }
 
-bool ParagraphReaderActivity::skipPages(const int amount) {
+bool ParagraphReaderActivity::skipPages(int amount) {
   int newPage = static_cast<int>(currentPage_) + amount;
   if (newPage < 0) newPage = 0;
   if (newPage > static_cast<int>(pages_.size())) newPage = static_cast<int>(pages_.size());
