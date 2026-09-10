@@ -79,13 +79,29 @@ jobs:
       - name: Run cppcheck
         run: |
           set -o pipefail
-          pio check --fail-on-defect low --fail-on-defect medium --fail-on-defect high 2>&1 | tee cppcheck.log || {
-            echo "## Cppcheck Output" >> "$GITHUB_STEP_SUMMARY"
-            echo '```' >> "$GITHUB_STEP_SUMMARY"
-            cat cppcheck.log >> "$GITHUB_STEP_SUMMARY"
-            echo '```' >> "$GITHUB_STEP_SUMMARY"
+          if ! pio check --fail-on-defect low --fail-on-defect medium --fail-on-defect high > cppcheck.log 2>&1; then
+            cat cppcheck.log
+            python3 -c '
+          import re, sys
+          with open("cppcheck.log") as f:
+              for line in f:
+                  line = line.strip()
+                  # Match standard cppcheck defect formats:
+                  # [file:line]: (severity) message
+                  # or file:line: [severity] message
+                  m1 = re.match(r"^\[([^:]+):(\d+)\]:\s*\(([^\)]+)\)\s*(.*)$", line)
+                  m2 = re.match(r"^([^:]+):(\d+):\s*\[([^\]]+)\]\s*(.*)$", line)
+                  if m1:
+                      file, lineno, severity, msg = m1.groups()
+                      print(f"::error file={file},line={lineno},title=Cppcheck [{severity}]::{msg}")
+                  elif m2:
+                      file, lineno, severity, msg = m2.groups()
+                      print(f"::error file={file},line={lineno},title=Cppcheck [{severity}]::{msg}")
+                  elif "error:" in line.lower() or "warning:" in line.lower() or "defect" in line.lower():
+                      print(f"::error title=Cppcheck Defect::{line}")
+          '
             exit 1
-          }
+          fi
 
   build:
     name: Build ${{ matrix.env }}
