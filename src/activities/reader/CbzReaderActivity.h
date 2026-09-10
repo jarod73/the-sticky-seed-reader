@@ -22,12 +22,19 @@ class CbzReaderActivity final : public ReaderActivity {
   bool loadBook() override;
   std::string getBookTitle() const override;
   bool pageTurn(bool isForward) override;
+  bool skipPages(int amount) override;
   bool isAtEndOfBook() const override;
+  void onReturnFromEndOfBook() override;
   void renderBook() override;
+
+  ScreenshotInfo getScreenshotInfo() const override;
 
  private:
   bool indexArchive();
   bool renderPageImage(const std::string& tempPath, const std::string& originalExt);
+  void saveProgress() const;
+  void loadProgress();
+  std::string getCachePath() const;
 
   std::vector<std::string> pageEntries_;
   size_t currentPage_ = 0;

@@ -15,6 +15,8 @@
 
 #include "CrossPointSettings.h"
 #include "MappedInputManager.h"
+#include "ProgressFile.h"
+#include "ReaderUtils.h"
 #include "components/UITheme.h"
 #include "fontIds.h"
 
@@ -28,16 +30,26 @@ CbzReaderActivity::CbzReaderActivity(GfxRenderer& renderer, MappedInputManager& 
 
 CbzReaderActivity::~CbzReaderActivity() { Storage.remove(TEMP_CBZ_PAGE_PATH); }
 
-bool CbzReaderActivity::loadBook() { return indexArchive(); }
+bool CbzReaderActivity::loadBook() {
+  if (indexArchive()) {
+    loadProgress();
+    return true;
+  }
+  return false;
+}
 
 std::string CbzReaderActivity::getBookTitle() const {
   const size_t slash = bookPath.find_last_of('/');
   return (slash != std::string::npos) ? bookPath.substr(slash + 1) : bookPath;
 }
 
+std::string CbzReaderActivity::getCachePath() const {
+  return ReaderUtils::getCachePathForBook(bookPath, "comic");
+}
+
 bool CbzReaderActivity::pageTurn(const bool isForward) {
   if (isForward) {
-    if (currentPage_ + 1 < pageEntries_.size()) {
+    if (currentPage_ < pageEntries_.size()) {
       currentPage_++;
       requestUpdate();
       return true;
@@ -52,8 +64,54 @@ bool CbzReaderActivity::pageTurn(const bool isForward) {
   return false;
 }
 
+bool CbzReaderActivity::skipPages(const int amount) {
+  int newPage = static_cast<int>(currentPage_) + amount;
+  if (newPage < 0) newPage = 0;
+  if (newPage > static_cast<int>(pageEntries_.size())) newPage = static_cast<int>(pageEntries_.size());
+  if (newPage != static_cast<int>(currentPage_)) {
+    currentPage_ = static_cast<size_t>(newPage);
+    requestUpdate();
+    return true;
+  }
+  return false;
+}
+
 bool CbzReaderActivity::isAtEndOfBook() const {
-  return pageEntries_.empty() || (currentPage_ + 1 >= pageEntries_.size());
+  return !pageEntries_.empty() && (currentPage_ >= pageEntries_.size());
+}
+
+void CbzReaderActivity::onReturnFromEndOfBook() {
+  currentPage_ = pageEntries_.empty() ? 0 : pageEntries_.size() - 1;
+}
+
+void CbzReaderActivity::saveProgress() const {
+  if (pageEntries_.empty()) return;
+  const std::string cachePath = getCachePath();
+  ReaderUtils::setupCacheDir(cachePath);
+
+  uint8_t data[4];
+  data[0] = static_cast<uint8_t>(currentPage_ & 0xFF);
+  data[1] = static_cast<uint8_t>((currentPage_ >> 8) & 0xFF);
+  data[2] = static_cast<uint8_t>((currentPage_ >> 16) & 0xFF);
+  data[3] = static_cast<uint8_t>((currentPage_ >> 24) & 0xFF);
+  if (!ProgressFile::writeAtomic(cachePath, data, sizeof(data))) {
+    LOG_ERR("CBZ", "Failed to save progress: page %zu", currentPage_);
+  }
+}
+
+void CbzReaderActivity::loadProgress() {
+  const std::string cachePath = getCachePath();
+  HalFile f;
+  if (Storage.openFileForRead("CBZ", cachePath + "/progress.bin", f)) {
+    uint8_t data[4];
+    if (f.read(data, 4) == 4) {
+      currentPage_ = data[0] | (data[1] << 8) | (data[2] << 16) | (data[3] << 24);
+      if (!pageEntries_.empty() && currentPage_ >= pageEntries_.size()) {
+        currentPage_ = pageEntries_.size() - 1;
+      }
+      LOG_DBG("CBZ", "Loaded progress: page %zu/%zu", currentPage_ + 1, pageEntries_.size());
+    }
+  }
 }
 
 bool CbzReaderActivity::indexArchive() {
@@ -152,6 +210,7 @@ void CbzReaderActivity::renderBook() {
   if (pageEntries_.empty()) {
     renderer.drawCenteredText(UI_12_FONT_ID, renderer.getScreenHeight() / 2, "No comic pages found in archive", true,
                               EpdFontFamily::BOLD);
+    renderer.displayBuffer();
     return;
   }
 
@@ -178,8 +237,28 @@ void CbzReaderActivity::renderBook() {
                               true);
   }
 
-  // Draw Page Number Footer
-  char footerBuf[64];
-  snprintf(footerBuf, sizeof(footerBuf), "Page %zu / %zu", currentPage_ + 1, pageEntries_.size());
-  renderer.drawCenteredText(SMALL_FONT_ID, renderer.getScreenHeight() - 16, footerBuf, true);
+  // Draw Page Number Footer / Status Bar
+  const float progress = pageEntries_.empty() ? 0.0f : ((currentPage_ + 1) * 100.0f / pageEntries_.size());
+  std::string barTitle;
+  if (SETTINGS.statusBarSpec().showsTitle()) {
+    barTitle = getBookTitle();
+  }
+  GUI.drawStatusBar(renderer, progress, static_cast<int>(currentPage_ + 1), static_cast<int>(pageEntries_.size()),
+                    barTitle);
+
+  ReaderUtils::displayWithRefreshCycle(renderer, pagesUntilFullRefresh);
+
+  saveProgress();
+}
+
+ScreenshotInfo CbzReaderActivity::getScreenshotInfo() const {
+  ScreenshotInfo info;
+  const std::string t = getBookTitle();
+  snprintf(info.title, sizeof(info.title), "%s", t.c_str());
+  info.currentPage = static_cast<int>(currentPage_ + 1);
+  info.totalPages = static_cast<int>(pageEntries_.size());
+  info.progressPercent =
+      pageEntries_.empty() ? 0 : static_cast<int>((currentPage_ + 1) * 100.0f / pageEntries_.size() + 0.5f);
+  if (info.progressPercent > 100) info.progressPercent = 100;
+  return info;
 }

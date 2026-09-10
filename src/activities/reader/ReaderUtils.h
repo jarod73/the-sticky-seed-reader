@@ -3,6 +3,7 @@
 #include <CrossPointSettings.h>
 #include <GfxRenderer.h>
 #include <HalGPIO.h>
+#include <HalStorage.h>
 #include <HalTiltSensor.h>
 #include <Logging.h>
 #include <components/bars/tap-zones.h>
@@ -257,6 +258,20 @@ inline bool handleBackNavigation(const MappedInputManager& mappedInput, Activity
     goHome.fn(goHome.ctx);
   }
   return true;
+}
+
+inline std::string getCachePathForBook(const std::string& bookPath, const char* prefix = "book") {
+  const size_t hash = std::hash<std::string>{}(bookPath);
+  return std::string("/.crosspoint/") + prefix + "_" + std::to_string(hash);
+}
+
+inline void setupCacheDir(const std::string& cachePath) {
+  if (!Storage.exists("/.crosspoint")) {
+    Storage.mkdir("/.crosspoint");
+  }
+  if (!Storage.exists(cachePath.c_str())) {
+    Storage.mkdir(cachePath.c_str());
+  }
 }
 
 }  // namespace ReaderUtils

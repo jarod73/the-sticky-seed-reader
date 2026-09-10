@@ -2,35 +2,23 @@
 
 #include <memory>
 #include <string>
-#include <vector>
 
-#include "ReaderActivity.h"
-#include "util/TextWrapUtils.h"
+#include "ParagraphReaderActivity.h"
 
 /**
- * @brief Lightweight PDF (.pdf) text stream extractor and reader on E-Ink.
+ * @brief Plaintext-stream extraction reader for PDF documents.
  *
- * Scans PDF content streams and decodes text positioning operators (BT/ET, Tj, TJ)
- * into reflowable paragraphs with customizable fonts and margins.
+ * Scans uncompressed and lightly encoded PDF text objects, stripping PDF operator
+ * syntax to provide reflowable E-Ink reading of documents.
  */
-class PdfReaderActivity final : public ReaderActivity {
+class PdfReaderActivity final : public ParagraphReaderActivity {
  public:
   PdfReaderActivity(GfxRenderer& renderer, MappedInputManager& mappedInput, std::string bookPath,
                     bool allowFastInitialRefresh = false);
   ~PdfReaderActivity() override = default;
 
   bool loadBook() override;
-  std::string getBookTitle() const override;
-  bool pageTurn(bool isForward) override;
-  bool isAtEndOfBook() const override;
-  void renderBook() override;
 
  private:
   bool extractPdfText();
-  void paginate();
-
-  std::vector<std::string> paragraphs_;
-  std::vector<std::string> pages_;
-  size_t currentPage_ = 0;
-  bool isLoaded_ = false;
 };

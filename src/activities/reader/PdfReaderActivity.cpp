@@ -7,46 +7,18 @@
 
 #include <algorithm>
 
-#include "CrossPointSettings.h"
-#include "MappedInputManager.h"
-#include "components/UITheme.h"
-#include "fontIds.h"
-
 PdfReaderActivity::PdfReaderActivity(GfxRenderer& renderer, MappedInputManager& mappedInput, std::string bookPath,
                                      const bool allowFastInitialRefresh)
-    : ReaderActivity("PdfReader", renderer, mappedInput, std::move(bookPath), allowFastInitialRefresh) {}
+    : ParagraphReaderActivity("PdfReader", renderer, mappedInput, std::move(bookPath), allowFastInitialRefresh) {}
 
 bool PdfReaderActivity::loadBook() {
   if (extractPdfText()) {
     paginate();
+    loadProgress();
     return !pages_.empty();
   }
   return false;
 }
-
-std::string PdfReaderActivity::getBookTitle() const {
-  const size_t slash = bookPath.find_last_of('/');
-  return (slash != std::string::npos) ? bookPath.substr(slash + 1) : bookPath;
-}
-
-bool PdfReaderActivity::pageTurn(const bool isForward) {
-  if (isForward) {
-    if (currentPage_ + 1 < pages_.size()) {
-      currentPage_++;
-      requestUpdate();
-      return true;
-    }
-  } else {
-    if (currentPage_ > 0) {
-      currentPage_--;
-      requestUpdate();
-      return true;
-    }
-  }
-  return false;
-}
-
-bool PdfReaderActivity::isAtEndOfBook() const { return pages_.empty() || (currentPage_ + 1 >= pages_.size()); }
 
 bool PdfReaderActivity::extractPdfText() {
   HalFile file;
@@ -80,7 +52,7 @@ bool PdfReaderActivity::extractPdfText() {
     while (pos < len) {
       // Find (Text) Tj or TJ text blocks
       size_t openParen = chunk.find('(', pos);
-      if (openParen == std::string_view::npos) {
+      if (openParen == std::string::npos) {
         if (len - pos < 128) {
           carryOver = chunk.substr(pos);
         }
@@ -88,7 +60,7 @@ bool PdfReaderActivity::extractPdfText() {
       }
 
       size_t closeParen = chunk.find(')', openParen);
-      if (closeParen == std::string_view::npos) {
+      if (closeParen == std::string::npos) {
         carryOver = chunk.substr(openParen);
         break;
       }
@@ -124,55 +96,4 @@ bool PdfReaderActivity::extractPdfText() {
   isLoaded_ = !paragraphs_.empty();
   LOG_INF("PDF", "Extracted %zu paragraphs from PDF: %s", paragraphs_.size(), bookPath.c_str());
   return isLoaded_;
-}
-
-void PdfReaderActivity::paginate() {
-  pages_.clear();
-  if (!isLoaded_) return;
-
-  const int fontId = SETTINGS.getReaderFontId();
-  const int screenWidth = renderer.getScreenWidth();
-  const int screenHeight = renderer.getScreenHeight();
-  const int contentWidth = screenWidth - 48;
-  const int contentHeight = screenHeight - 64;
-
-  TextWrapUtils::paginateParagraphs(renderer, fontId, paragraphs_, contentWidth, contentHeight, pages_);
-
-  if (currentPage_ >= pages_.size() && !pages_.empty()) {
-    currentPage_ = pages_.size() - 1;
-  }
-}
-
-void PdfReaderActivity::renderBook() {
-  renderer.clearScreen(0xFF);
-
-  if (!isLoaded_ || pages_.empty()) {
-    renderer.drawCenteredText(UI_12_FONT_ID, renderer.getScreenHeight() / 2, "No readable text stream found in PDF",
-                              true, EpdFontFamily::BOLD);
-    return;
-  }
-
-  const int fontId = SETTINGS.getReaderFontId();
-  const int fontLineHeight = renderer.getLineHeight(fontId);
-  const int leftMargin = 24;
-  int currentY = 32;
-
-  // Draw Page Lines
-  const std::string& text = pages_[currentPage_];
-  size_t pos = 0;
-  while (pos < text.length()) {
-    size_t next = text.find('\n', pos);
-    std::string line = (next == std::string::npos) ? text.substr(pos) : text.substr(pos, next - pos);
-    if (!line.empty()) {
-      renderer.drawText(fontId, leftMargin, currentY, line.c_str(), true);
-    }
-    currentY += fontLineHeight + 4;
-    if (next == std::string::npos) break;
-    pos = next + 1;
-  }
-
-  // Draw Footer Page Number
-  char footerBuf[64];
-  snprintf(footerBuf, sizeof(footerBuf), "%zu / %zu", currentPage_ + 1, pages_.size());
-  renderer.drawCenteredText(SMALL_FONT_ID, renderer.getScreenHeight() - 16, footerBuf, true);
 }
