@@ -25,9 +25,7 @@ std::string ParagraphReaderActivity::getBookTitle() const {
   return (slash != std::string::npos) ? bookPath.substr(slash + 1) : bookPath;
 }
 
-std::string ParagraphReaderActivity::getCachePath() const {
-  return ReaderUtils::getCachePathForBook(bookPath, "book");
-}
+std::string ParagraphReaderActivity::getCachePath() const { return ReaderUtils::getCachePathForBook(bookPath, "book"); }
 
 bool ParagraphReaderActivity::pageTurn(const bool isForward) {
   if (isForward) {
@@ -62,9 +60,7 @@ bool ParagraphReaderActivity::isAtEndOfBook() const {
   return isLoaded_ && !pages_.empty() && (currentPage_ >= pages_.size());
 }
 
-void ParagraphReaderActivity::onReturnFromEndOfBook() {
-  currentPage_ = pages_.empty() ? 0 : pages_.size() - 1;
-}
+void ParagraphReaderActivity::onReturnFromEndOfBook() { currentPage_ = pages_.empty() ? 0 : pages_.size() - 1; }
 
 void ParagraphReaderActivity::saveProgress() const {
   if (pages_.empty()) return;
@@ -179,8 +175,7 @@ ScreenshotInfo ParagraphReaderActivity::getScreenshotInfo() const {
   snprintf(info.title, sizeof(info.title), "%s", t.c_str());
   info.currentPage = static_cast<int>(currentPage_ + 1);
   info.totalPages = static_cast<int>(pages_.size());
-  info.progressPercent =
-      pages_.empty() ? 0 : static_cast<int>((currentPage_ + 1) * 100.0f / pages_.size() + 0.5f);
+  info.progressPercent = pages_.empty() ? 0 : static_cast<int>((currentPage_ + 1) * 100.0f / pages_.size() + 0.5f);
   if (info.progressPercent > 100) info.progressPercent = 100;
   return info;
 }

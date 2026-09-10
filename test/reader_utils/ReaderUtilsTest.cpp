@@ -42,7 +42,7 @@ TEST(ReaderUtilsTest, EndOfBookPageBounds) {
   // Turning forward past the last page:
   currentPage++;
   atEnd = (currentPage >= totalPages);
-  EXPECT_TRUE(atEnd);   // Now sentinel is reached!
+  EXPECT_TRUE(atEnd);  // Now sentinel is reached!
 
   // Turning back from end-of-book returns to last valid page:
   size_t returnPage = totalPages > 0 ? totalPages - 1 : 0;
@@ -67,5 +67,5 @@ TEST(ReaderUtilsTest, SkipPagesBoundsClamping) {
   EXPECT_EQ(currentPage, 10u);  // Clamped to end-of-book sentinel
 
   skip(-50);
-  EXPECT_EQ(currentPage, 0u);   // Clamped to first page
+  EXPECT_EQ(currentPage, 0u);  // Clamped to first page
 }

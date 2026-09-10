@@ -43,9 +43,7 @@ std::string CbzReaderActivity::getBookTitle() const {
   return (slash != std::string::npos) ? bookPath.substr(slash + 1) : bookPath;
 }
 
-std::string CbzReaderActivity::getCachePath() const {
-  return ReaderUtils::getCachePathForBook(bookPath, "comic");
-}
+std::string CbzReaderActivity::getCachePath() const { return ReaderUtils::getCachePathForBook(bookPath, "comic"); }
 
 bool CbzReaderActivity::pageTurn(const bool isForward) {
   if (isForward) {
@@ -76,13 +74,9 @@ bool CbzReaderActivity::skipPages(const int amount) {
   return false;
 }
 
-bool CbzReaderActivity::isAtEndOfBook() const {
-  return !pageEntries_.empty() && (currentPage_ >= pageEntries_.size());
-}
+bool CbzReaderActivity::isAtEndOfBook() const { return !pageEntries_.empty() && (currentPage_ >= pageEntries_.size()); }
 
-void CbzReaderActivity::onReturnFromEndOfBook() {
-  currentPage_ = pageEntries_.empty() ? 0 : pageEntries_.size() - 1;
-}
+void CbzReaderActivity::onReturnFromEndOfBook() { currentPage_ = pageEntries_.empty() ? 0 : pageEntries_.size() - 1; }
 
 void CbzReaderActivity::saveProgress() const {
   if (pageEntries_.empty()) return;
