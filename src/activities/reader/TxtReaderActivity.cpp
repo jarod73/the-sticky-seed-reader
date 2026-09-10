@@ -170,7 +170,8 @@ bool TxtReaderActivity::loadPageAtOffset(GfxRenderer& renderer, size_t offset, s
     bool hasCR = (lineContentLen > 0 && buffer[pos + lineContentLen - 1] == '\r');
     size_t displayLen = hasCR ? lineContentLen - 1 : lineContentLen;
 
-    std::string line(reinterpret_cast<char*>(buffer.get() + pos), displayLen);
+    const char* rawChars = reinterpret_cast<const char*>(buffer.get());
+    std::string line(rawChars + pos, displayLen);
     size_t lineBytePos = 0;
 
     do {

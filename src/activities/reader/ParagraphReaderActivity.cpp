@@ -153,7 +153,7 @@ void ParagraphReaderActivity::renderBook() {
   renderContent();
 
   // Draw Footer Page Number / Status Bar
-  const float progress = pages_.empty() ? 0.0f : ((currentPage_ + 1) * 100.0f / pages_.size());
+  const float progress = (currentPage_ + 1) * 100.0f / pages_.size();
   std::string barTitle;
   if (SETTINGS.statusBarSpec().showsTitle()) {
     barTitle = getBookTitle();
