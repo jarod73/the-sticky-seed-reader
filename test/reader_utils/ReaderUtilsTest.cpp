@@ -2,11 +2,17 @@
 
 #include <string>
 
-// Test standalone implementation of getCachePathForBook logic
 namespace {
-std::string getCachePathForBook(const std::string& bookPath, const char* prefix = "book") {
+inline std::string getCachePathForBook(const std::string& bookPath, const char* prefix = "book") {
   const size_t hash = std::hash<std::string>{}(bookPath);
   return std::string("/.crosspoint/") + prefix + "_" + std::to_string(hash);
+}
+
+inline size_t clampPageSkip(size_t currentPage, int amount, size_t totalPages) {
+  int newPage = static_cast<int>(currentPage) + amount;
+  if (newPage < 0) return 0;
+  if (newPage > static_cast<int>(totalPages)) return totalPages;
+  return static_cast<size_t>(newPage);
 }
 }  // namespace
 
@@ -50,22 +56,8 @@ TEST(ReaderUtilsTest, EndOfBookPageBounds) {
 }
 
 TEST(ReaderUtilsTest, SkipPagesBoundsClamping) {
-  const size_t totalPages = 10;
-  size_t currentPage = 0;
-
-  auto skip = [&](int amount) {
-    int newPage = static_cast<int>(currentPage) + amount;
-    if (newPage < 0) newPage = 0;
-    if (newPage > static_cast<int>(totalPages)) newPage = static_cast<int>(totalPages);
-    currentPage = static_cast<size_t>(newPage);
-  };
-
-  skip(5);
-  EXPECT_EQ(currentPage, 5u);
-
-  skip(20);
-  EXPECT_EQ(currentPage, 10u);  // Clamped to end-of-book sentinel
-
-  skip(-50);
-  EXPECT_EQ(currentPage, 0u);  // Clamped to first page
+  EXPECT_EQ(clampPageSkip(0, 5, 10), 5u);
+  EXPECT_EQ(clampPageSkip(5, 20, 10), 10u);
+  EXPECT_EQ(clampPageSkip(5, -20, 10), 0u);
+  EXPECT_EQ(clampPageSkip(0, -5, 10), 0u);
 }

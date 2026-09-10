@@ -61,6 +61,14 @@ bool Fb2ReaderActivity::parseFb2Xml(const std::string& xml) {
   title_ = extractTag("<book-title>", "</book-title>");
   if (title_.empty()) title_ = extractTag("<title>", "</title>");
 
+  std::string firstName = extractTag("<first-name>", "</first-name>");
+  std::string lastName = extractTag("<last-name>", "</last-name>");
+  if (!firstName.empty() || !lastName.empty()) {
+    author_ = firstName.empty() ? lastName : (lastName.empty() ? firstName : (firstName + " " + lastName));
+  } else {
+    author_ = extractTag("<author>", "</author>");
+  }
+
   // Extract <p> paragraphs
   while (pos < len) {
     size_t pStart = xml.find("<p>", pos);

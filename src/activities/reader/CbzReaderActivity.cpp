@@ -83,7 +83,7 @@ void CbzReaderActivity::saveProgress() const {
   const std::string cachePath = getCachePath();
   ReaderUtils::setupCacheDir(cachePath);
 
-  uint8_t data[4];
+  uint8_t data[4] = {0};
   data[0] = static_cast<uint8_t>(currentPage_ & 0xFF);
   data[1] = static_cast<uint8_t>((currentPage_ >> 8) & 0xFF);
   data[2] = static_cast<uint8_t>((currentPage_ >> 16) & 0xFF);
@@ -97,9 +97,10 @@ void CbzReaderActivity::loadProgress() {
   const std::string cachePath = getCachePath();
   HalFile f;
   if (Storage.openFileForRead("CBZ", cachePath + "/progress.bin", f)) {
-    uint8_t data[4];
+    uint8_t data[4] = {0};
     if (f.read(data, 4) == 4) {
-      currentPage_ = data[0] | (data[1] << 8) | (data[2] << 16) | (data[3] << 24);
+      currentPage_ = static_cast<size_t>(data[0]) | (static_cast<size_t>(data[1]) << 8) |
+                     (static_cast<size_t>(data[2]) << 16) | (static_cast<size_t>(data[3]) << 24);
       if (!pageEntries_.empty() && currentPage_ >= pageEntries_.size()) {
         currentPage_ = pageEntries_.size() - 1;
       }

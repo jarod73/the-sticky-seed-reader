@@ -74,7 +74,7 @@ bool MobiReaderActivity::loadAndDecompressMobi() {
   title_ = titleBuf;
 
   file.seek(76);
-  uint8_t recCountBuf[2];
+  uint8_t recCountBuf[2] = {0};
   file.read(recCountBuf, 2);
   const uint16_t numRecords = (static_cast<uint16_t>(recCountBuf[0]) << 8) | recCountBuf[1];
 
@@ -88,7 +88,7 @@ bool MobiReaderActivity::loadAndDecompressMobi() {
   recordOffsets.reserve(std::min<size_t>(numRecords, 512));
 
   for (uint16_t r = 0; r < numRecords && r < 512; ++r) {
-    uint8_t entry[8];
+    uint8_t entry[8] = {0};
     if (file.read(entry, 8) != 8) break;
     const uint32_t offset = (static_cast<uint32_t>(entry[0]) << 24) | (static_cast<uint32_t>(entry[1]) << 16) |
                             (static_cast<uint32_t>(entry[2]) << 8) | static_cast<uint32_t>(entry[3]);
@@ -98,7 +98,7 @@ bool MobiReaderActivity::loadAndDecompressMobi() {
   // 3. Read PalmDOC header (Record 0)
   if (recordOffsets.size() < 2) return false;
   file.seek(recordOffsets[0]);
-  uint8_t palmDocHdr[16];
+  uint8_t palmDocHdr[16] = {0};
   file.read(palmDocHdr, 16);
   const uint16_t compression = (static_cast<uint16_t>(palmDocHdr[0]) << 8) | palmDocHdr[1];
   const uint16_t textRecordCount = (static_cast<uint16_t>(palmDocHdr[8]) << 8) | palmDocHdr[9];
