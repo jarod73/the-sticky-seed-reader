@@ -75,11 +75,6 @@ bool OtaUpdater::isUpdateNewer() const {
   int currentMajor = 0, currentMinor = 0, currentPatch = 0;
   int latestMajor = 0, latestMinor = 0, latestPatch = 0;
 
-  const char* currentVersion = CROSSPOINT_VERSION;
-  if (currentVersion[0] == 'v' || currentVersion[0] == 'V') {
-    currentVersion++;
-  }
-
   const char* latestVersionStr = latestVersion.c_str();
   if (latestVersionStr[0] == 'v' || latestVersionStr[0] == 'V') {
     latestVersionStr++;
@@ -87,7 +82,7 @@ bool OtaUpdater::isUpdateNewer() const {
 
   // semantic version check (only match on 3 segments)
   sscanf(latestVersionStr, "%d.%d.%d", &latestMajor, &latestMinor, &latestPatch);
-  sscanf(currentVersion, "%d.%d.%d", &currentMajor, &currentMinor, &currentPatch);
+  sscanf(CROSSPOINT_VERSION, "%d.%d.%d", &currentMajor, &currentMinor, &currentPatch);
 
   /*
    * Compare major versions.

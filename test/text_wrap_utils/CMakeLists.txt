@@ -1,6 +1,7 @@
 add_executable(TextWrapUtilsTest
   TextWrapUtilsTest.cpp
   ${REPO_ROOT}/src/util/TextWrapUtils.cpp
+  ${REPO_ROOT}/lib/Utf8/Utf8.cpp
 )
 
 target_include_directories(TextWrapUtilsTest PRIVATE
@@ -8,6 +9,7 @@ target_include_directories(TextWrapUtilsTest PRIVATE
   ${REPO_ROOT}/src
   ${REPO_ROOT}/src/util
   ${REPO_ROOT}/lib/EpdFont
+  ${REPO_ROOT}/lib/Utf8
 )
 
 target_link_libraries(TextWrapUtilsTest PRIVATE
