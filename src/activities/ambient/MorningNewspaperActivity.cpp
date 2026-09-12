@@ -437,7 +437,8 @@ void MorningNewspaperActivity::renderPortrait(int pageWidth, int pageHeight) {
   EnvironmentSensor env;
   float inTemp = 0.0f, inHum = 0.0f;
   if (env.begin() && env.read(inTemp, inHum)) {
-    rightOff += snprintf(rightInfo + rightOff, sizeof(rightInfo) - rightOff, "Room: %.1f°C / %.0f%%  •  ", inTemp, inHum);
+    rightOff +=
+        snprintf(rightInfo + rightOff, sizeof(rightInfo) - rightOff, "Room: %.1f°C / %.0f%%  •  ", inTemp, inHum);
   }
 #endif
   const uint16_t batt = powerManager.getBatteryPercentage();
@@ -500,8 +501,9 @@ void MorningNewspaperActivity::renderPortrait(int pageWidth, int pageHeight) {
     }
 
     std::string bullet = std::to_string(i) + ". " + item.title;
-    yHeadlines = TextWrapUtils::drawWrappedParagraph(renderer, SMALL_FONT_ID, 18, yHeadlines, pageWidth - 36, 36, bullet,
-                                                     isSelected ? EpdFontFamily::BOLD : EpdFontFamily::REGULAR, 2);
+    yHeadlines =
+        TextWrapUtils::drawWrappedParagraph(renderer, SMALL_FONT_ID, 18, yHeadlines, pageWidth - 36, 36, bullet,
+                                            isSelected ? EpdFontFamily::BOLD : EpdFontFamily::REGULAR, 2);
     yHeadlines += 4;
     if (i < maxHeadlines - 1 && !isSelected) {
       renderer.drawLine(18, yHeadlines, pageWidth - 18, yHeadlines);
@@ -575,7 +577,8 @@ void MorningNewspaperActivity::renderLandscape(int pageWidth, int pageHeight) {
   EnvironmentSensor env;
   float inTemp = 0.0f, inHum = 0.0f;
   if (env.begin() && env.read(inTemp, inHum)) {
-    rightOff += snprintf(rightInfo + rightOff, sizeof(rightInfo) - rightOff, "Room: %.1f°C / %.0f%%  •  ", inTemp, inHum);
+    rightOff +=
+        snprintf(rightInfo + rightOff, sizeof(rightInfo) - rightOff, "Room: %.1f°C / %.0f%%  •  ", inTemp, inHum);
   }
 #endif
   const uint16_t batt = powerManager.getBatteryPercentage();
@@ -613,8 +616,8 @@ void MorningNewspaperActivity::renderLandscape(int pageWidth, int pageHeight) {
     renderer.drawText(UI_10_FONT_ID, 20, y, "[ ★ LEAD STORY ]", true, EpdFontFamily::BOLD);
     y += 20;
 
-    y = TextWrapUtils::drawWrappedParagraph(renderer, UI_10_FONT_ID, 20, y, colW, 46, top.title,
-                                            EpdFontFamily::BOLD, 2);
+    y = TextWrapUtils::drawWrappedParagraph(renderer, UI_10_FONT_ID, 20, y, colW, 46, top.title, EpdFontFamily::BOLD,
+                                            2);
     y += 4;
     renderer.drawLine(20, y, 20 + colW, y);
     y += 6;
