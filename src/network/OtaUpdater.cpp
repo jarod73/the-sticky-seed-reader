@@ -20,8 +20,9 @@
 
 namespace {
 constexpr const char* releaseUrls[] = {
-    "https://api.github.com/repos/jarod73/crosspoint-reader-sticky/releases/latest",
+    "https://api.github.com/repos/jarod73/the-sticky-seed-reader/releases/latest",
     "https://api.github.com/repos/jarod73/The-Sticky-Seed-Reader/releases/latest",
+    "https://api.github.com/repos/jarod73/crosspoint-reader-sticky/releases/latest",
     "https://api.github.com/repos/crosspoint-reader/crosspoint-reader/releases/latest",
 };
 }  // namespace

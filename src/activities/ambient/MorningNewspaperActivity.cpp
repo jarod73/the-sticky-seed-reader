@@ -348,7 +348,7 @@ void MorningNewspaperActivity::loop() {
           selectedStoryIndex = 0;
           openStoryInBrowser(0);
           return;
-        } else if (tx < midX && ty >= 280 && ty < screenH - 48) {
+        } else if (tx < midX && ty >= 280) {
           const auto& recents = RECENT_BOOKS.getBooks();
           if (!recents.empty()) {
             activityManager.goToReader(recents[0].path, false);
@@ -370,7 +370,7 @@ void MorningNewspaperActivity::loop() {
             }
             return;
           }
-        } else if (tx >= midX && ty >= 320 && ty < screenH - 48) {
+        } else if (tx >= midX && ty >= 320) {
           loadNewspaperData();
           return;
         }
