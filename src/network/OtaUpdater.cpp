@@ -72,13 +72,21 @@ bool OtaUpdater::isUpdateNewer() const {
     return false;
   }
 
-  int currentMajor, currentMinor, currentPatch;
-  int latestMajor, latestMinor, latestPatch;
+  int currentMajor = 0, currentMinor = 0, currentPatch = 0;
+  int latestMajor = 0, latestMinor = 0, latestPatch = 0;
 
-  const auto currentVersion = CROSSPOINT_VERSION;
+  const char* currentVersion = CROSSPOINT_VERSION;
+  if (currentVersion[0] == 'v' || currentVersion[0] == 'V') {
+    currentVersion++;
+  }
+
+  const char* latestVersionStr = latestVersion.c_str();
+  if (latestVersionStr[0] == 'v' || latestVersionStr[0] == 'V') {
+    latestVersionStr++;
+  }
 
   // semantic version check (only match on 3 segments)
-  sscanf(latestVersion.c_str(), "%d.%d.%d", &latestMajor, &latestMinor, &latestPatch);
+  sscanf(latestVersionStr, "%d.%d.%d", &latestMajor, &latestMinor, &latestPatch);
   sscanf(currentVersion, "%d.%d.%d", &currentMajor, &currentMinor, &currentPatch);
 
   /*
@@ -103,7 +111,7 @@ bool OtaUpdater::isUpdateNewer() const {
   // If we reach here, it means all segments are equal.
   // One final check, if we're on an RC build (contains "-rc"), we should consider the latest version as newer even if
   // the segments are equal, since RC builds are pre-release versions.
-  if (strstr(currentVersion, "-rc") != nullptr) {
+  if (strstr(CROSSPOINT_VERSION, "-rc") != nullptr) {
     return true;
   }
 
