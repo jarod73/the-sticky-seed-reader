@@ -169,11 +169,15 @@ int utf8SafeTruncateBuffer(const char* buf, int len) {
     leadPos--;
   }
 
+  if ((static_cast<uint8_t>(buf[leadPos]) & 0xC0) == 0x80) {
+    return 0;
+  }
+
   // Determine expected length of the sequence starting at leadPos
   int expectedLen = utf8CodepointLen(static_cast<unsigned char>(buf[leadPos]));
   int actualLen = len - leadPos;
 
-  if (actualLen < expectedLen && leadPos > 0) {
+  if (actualLen < expectedLen) {
     // Incomplete UTF-8 sequence at the end — exclude it
     return leadPos;
   }

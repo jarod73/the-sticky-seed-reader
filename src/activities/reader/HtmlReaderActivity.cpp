@@ -19,13 +19,20 @@ bool HtmlReaderActivity::loadBook() {
 }
 
 bool HtmlReaderActivity::loadAndParseHtml() {
-  String content = Storage.readFile(bookPath.c_str());
-  if (content.isEmpty()) {
-    LOG_ERR("HTML", "Failed to read HTML file: %s", bookPath.c_str());
+  HalFile file;
+  if (!Storage.openFileForRead("HTML", bookPath.c_str(), file)) {
+    LOG_ERR("HTML", "Failed to open HTML file: %s", bookPath.c_str());
     return false;
   }
 
-  std::string htmlStr(content.c_str(), content.length());
+  const size_t fileSize = file.size();
+  std::string htmlStr;
+  htmlStr.resize(fileSize);
+  if (fileSize > 0 && file.read(reinterpret_cast<uint8_t*>(&htmlStr[0]), fileSize) != fileSize) {
+    LOG_ERR("HTML", "Failed to read full HTML file: %s", bookPath.c_str());
+    return false;
+  }
+
   auto article = ReadabilityExtractor::extract(htmlStr);
   title_ = std::move(article.title);
   paragraphs_ = std::move(article.paragraphs);

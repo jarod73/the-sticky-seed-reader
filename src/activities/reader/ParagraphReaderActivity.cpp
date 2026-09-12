@@ -140,9 +140,12 @@ void ParagraphReaderActivity::renderBook() {
     size_t pos = 0;
     while (pos < text.length()) {
       size_t next = text.find('\n', pos);
-      std::string line = (next == std::string::npos) ? text.substr(pos) : text.substr(pos, next - pos);
-      if (!line.empty()) {
-        renderer.drawText(fontId, leftMargin, currentY, line.c_str(), true);
+      std::string_view lineView = (next == std::string::npos) ? std::string_view(text).substr(pos)
+                                                              : std::string_view(text).substr(pos, next - pos);
+      if (!lineView.empty()) {
+        char lineBuf[256];
+        snprintf(lineBuf, sizeof(lineBuf), "%.*s", static_cast<int>(lineView.size()), lineView.data());
+        renderer.drawText(fontId, leftMargin, currentY, lineBuf, true);
       }
       currentY += fontLineHeight + 4;
       if (next == std::string::npos) break;

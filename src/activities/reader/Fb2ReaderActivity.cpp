@@ -25,9 +25,13 @@ bool Fb2ReaderActivity::loadBook() {
       }
     });
   } else {
-    String content = Storage.readFile(bookPath.c_str());
-    if (!content.isEmpty()) {
-      xmlData.assign(content.c_str(), content.length());
+    HalFile file;
+    if (Storage.openFileForRead("FB2", bookPath.c_str(), file)) {
+      const size_t sz = file.size();
+      xmlData.resize(sz);
+      if (sz > 0 && file.read(reinterpret_cast<uint8_t*>(&xmlData[0]), sz) != sz) {
+        xmlData.clear();
+      }
     }
   }
 

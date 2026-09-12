@@ -1,6 +1,7 @@
 #include "TextWrapUtils.h"
 
 #include <GfxRenderer.h>
+#include <Utf8.h>
 
 #include <algorithm>
 #include <cctype>
@@ -24,17 +25,25 @@ std::vector<std::string> TextWrapUtils::wrapToWidth(const GfxRenderer& renderer,
 
     // Word boundary hunt: look backwards for a space delimiter
     if (start + len < text.length()) {
-      size_t space = text.rfind(' ', start + len);
-      if (space != std::string_view::npos && space > start) {
-        len = space - start;
+      size_t space = text.substr(start, len + 1).rfind(' ');
+      if (space != std::string_view::npos && space > 0) {
+        len = space;
+      } else {
+        len = utf8SafeTruncateBuffer(text.data() + start, len);
+        if (len == 0) {
+          len = 1;
+          while (start + len < text.length() && (static_cast<uint8_t>(text[start + len]) & 0xC0) == 0x80) {
+            len++;
+          }
+        }
       }
     }
 
     std::string line(text.substr(start, len));
-    // Verify pixel width and shrink if necessary for wide words
-    while (line.length() > 5 && renderer.getTextWidth(fontId, line.c_str()) > maxWidthPixels) {
-      line.pop_back();
-      len--;
+    // Verify pixel width and shrink if necessary on safe UTF-8 boundaries
+    while (!line.empty() && renderer.getTextWidth(fontId, line.c_str()) > maxWidthPixels) {
+      utf8RemoveLastChar(line);
+      len = line.length();
     }
 
     lines.push_back(std::move(line));
@@ -62,9 +71,17 @@ std::vector<std::string> TextWrapUtils::wrapToCharCount(std::string_view text, s
 
     size_t len = std::min(maxCharsPerLine, text.length() - start);
     if (start + len < text.length()) {
-      size_t space = text.rfind(' ', start + len);
-      if (space != std::string_view::npos && space > start) {
-        len = space - start;
+      size_t space = text.substr(start, len + 1).rfind(' ');
+      if (space != std::string_view::npos && space > 0) {
+        len = space;
+      } else {
+        len = utf8SafeTruncateBuffer(text.data() + start, len);
+        if (len == 0) {
+          len = 1;
+          while (start + len < text.length() && (static_cast<uint8_t>(text[start + len]) & 0xC0) == 0x80) {
+            len++;
+          }
+        }
       }
     }
 

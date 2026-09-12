@@ -208,6 +208,9 @@ bool TxtReaderActivity::loadPageAtOffset(GfxRenderer& renderer, size_t offset, s
 
       if (breakPos == 0) {
         breakPos = 1;
+        while (breakPos < line.length() && (static_cast<uint8_t>(line[breakPos]) & 0xC0) == 0x80) {
+          breakPos++;
+        }
       }
 
       outLines.push_back(line.substr(0, breakPos));

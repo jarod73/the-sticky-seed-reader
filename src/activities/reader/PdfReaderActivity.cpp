@@ -41,9 +41,8 @@ bool PdfReaderActivity::extractPdfText() {
   while (file.available()) {
     int bytesRead = file.read(reinterpret_cast<uint8_t*>(buffer.data()), BUF_SIZE);
     if (bytesRead <= 0) break;
-    buffer[bytesRead] = '\0';
 
-    std::string chunk = carryOver + buffer.data();
+    std::string chunk = carryOver + std::string(buffer.data(), bytesRead);
     carryOver.clear();
 
     size_t pos = 0;
@@ -59,8 +58,15 @@ bool PdfReaderActivity::extractPdfText() {
         break;
       }
 
-      size_t closeParen = chunk.find(')', openParen);
-      if (closeParen == std::string::npos) {
+      // Handle escaped parentheses \( and \)
+      size_t closeParen = openParen + 1;
+      while (closeParen < len) {
+        if (chunk[closeParen] == ')' && chunk[closeParen - 1] != '\\') {
+          break;
+        }
+        closeParen++;
+      }
+      if (closeParen >= len) {
         carryOver = chunk.substr(openParen);
         break;
       }
