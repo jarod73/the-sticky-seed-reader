@@ -8,15 +8,7 @@
 #include "util/ButtonNavigator.h"
 #include "util/RssFeedParser.h"
 
-enum class NewspaperState {
-  IDLE,
-  WIFI_CONNECTING,
-  FETCHING_WEATHER,
-  FETCHING_NEWS,
-  PARSING_NEWS,
-  DISPLAYING,
-  ERROR
-};
+enum class NewspaperState { IDLE, WIFI_CONNECTING, FETCHING_WEATHER, FETCHING_NEWS, PARSING_NEWS, DISPLAYING, ERROR };
 
 class MorningNewspaperActivity final : public Activity {
  private:
