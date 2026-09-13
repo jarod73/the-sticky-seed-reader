@@ -9,7 +9,7 @@
 #include "util/RssFeedParser.h"
 
 enum class NewspaperState {
-  CHECK_WIFI,
+  IDLE,
   WIFI_CONNECTING,
   FETCHING_WEATHER,
   FETCHING_NEWS,
@@ -21,9 +21,9 @@ enum class NewspaperState {
 class MorningNewspaperActivity final : public Activity {
  private:
   ButtonNavigator buttonNavigator;
-  NewspaperState state = NewspaperState::CHECK_WIFI;
+  NewspaperState state = NewspaperState::IDLE;
   int loadingProgress = 0;
-  std::string loadingMessage = "Connecting to Wi-Fi...";
+  std::string loadingMessage;
   std::string errorMessage;
   RssFeed feed;
   WeatherForecast forecast;

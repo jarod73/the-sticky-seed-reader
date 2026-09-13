@@ -52,10 +52,7 @@ void MorningNewspaperActivity::onEnter() {
   Activity::onEnter();
   selectedStoryIndex = 0;
   errorMessage.clear();
-  loadingProgress = 10;
-  loadingMessage = "Connecting to Wi-Fi...";
-  state = NewspaperState::CHECK_WIFI;
-  requestUpdateAndWait();
+  checkAndConnectWifi();
 }
 
 void MorningNewspaperActivity::onExit() { Activity::onExit(); }
@@ -65,9 +62,6 @@ void MorningNewspaperActivity::checkAndConnectWifi() {
     loadNewspaperData();
   } else {
     state = NewspaperState::WIFI_CONNECTING;
-    loadingProgress = 15;
-    loadingMessage = "Connecting to Wi-Fi Network...";
-    requestUpdateAndWait();
     startActivityForResult(std::make_unique<WifiSelectionActivity>(renderer, mappedInput, true),
                            [this](const ActivityResult&) {
                              if (WiFi.status() == WL_CONNECTED && WiFi.localIP() != IPAddress(0, 0, 0, 0)) {
@@ -157,8 +151,7 @@ void MorningNewspaperActivity::loop() {
   }
 
   // Handle tap during loading states to cancel
-  if (state == NewspaperState::CHECK_WIFI || state == NewspaperState::WIFI_CONNECTING ||
-      state == NewspaperState::FETCHING_WEATHER || state == NewspaperState::FETCHING_NEWS ||
+  if (state == NewspaperState::FETCHING_WEATHER || state == NewspaperState::FETCHING_NEWS ||
       state == NewspaperState::PARSING_NEWS) {
     int tx = 0, ty = 0;
     if (mappedInput.wasScreenTapped(tx, ty)) {
@@ -389,8 +382,7 @@ void MorningNewspaperActivity::render(RenderLock&&) {
 
   renderer.clearScreen(0xFF);
 
-  if (state == NewspaperState::CHECK_WIFI || state == NewspaperState::WIFI_CONNECTING ||
-      state == NewspaperState::FETCHING_WEATHER || state == NewspaperState::FETCHING_NEWS ||
+  if (state == NewspaperState::FETCHING_WEATHER || state == NewspaperState::FETCHING_NEWS ||
       state == NewspaperState::PARSING_NEWS) {
     Rect popupRect = GUI.drawPopup(renderer, loadingMessage.c_str());
     GUI.fillPopupProgress(renderer, popupRect, loadingProgress);
