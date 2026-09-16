@@ -40,11 +40,18 @@ std::vector<std::string> TextWrapUtils::wrapToWidth(const GfxRenderer& renderer,
     }
 
     std::string line(text.substr(start, len));
-    // Verify pixel width and shrink if necessary on safe UTF-8 boundaries
-    while (!line.empty() && renderer.getTextWidth(fontId, line.c_str()) > maxWidthPixels) {
-      utf8RemoveLastChar(line);
-      len = line.length();
+    // Verify pixel width and shrink if necessary on safe UTF-8 boundaries.
+    // Never shrink past a single glyph: if just one (over-wide) character
+    // remains, keep it as-is so `start` still advances below -- otherwise a
+    // glyph wider than maxWidthPixels on its own (CJK punctuation, emoji,
+    // ligatures) would shrink the line to empty and loop forever.
+    while (line.length() > 1 && renderer.getTextWidth(fontId, line.c_str()) > maxWidthPixels) {
+      std::string shrunk = line;
+      utf8RemoveLastChar(shrunk);
+      if (shrunk.empty()) break;
+      line = std::move(shrunk);
     }
+    len = line.length();
 
     lines.push_back(std::move(line));
     start += len;

@@ -159,11 +159,6 @@ void MorningNewspaperActivity::loop() {
       return;
     }
 
-    if (state == NewspaperState::CHECK_WIFI) {
-      checkAndConnectWifi();
-      return;
-    }
-
     if (state == NewspaperState::FETCHING_WEATHER) {
       OpenMeteoClient::fetchForecast(CLOUD_CREDENTIALS.getWeatherLat(), CLOUD_CREDENTIALS.getWeatherLon(), forecast);
       state = NewspaperState::FETCHING_NEWS;

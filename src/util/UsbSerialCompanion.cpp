@@ -3,6 +3,7 @@
 #include <ArduinoJson.h>
 #include <BatteryMonitor.h>
 #include <EnvironmentSensor.h>
+#include <FsHelpers.h>
 #include <Logging.h>
 
 #include "VoiceRecorder.h"
@@ -74,9 +75,13 @@ static void handlePutFile(Stream& serial, const String& line) {
     return;
   }
 
-  // Ensure leading slash
-  if (!filePath.startsWith("/")) {
-    filePath = "/" + filePath;
+  // Normalise and confine to the storage root: collapses ".." segments
+  // instead of trusting them, so a serial peer can't PUT above the sandbox
+  // (e.g. "../../.crosspoint/wifi.json").
+  filePath = ("/" + FsHelpers::normalisePath(filePath.c_str())).c_str();
+  if (filePath.length() <= 1) {
+    serial.println("ERR:INVALID_ARGS");
+    return;
   }
 
   HalFile file = Storage.open(filePath.c_str(), O_WRONLY | O_CREAT | O_TRUNC);
@@ -204,14 +209,20 @@ bool handleSerial(Stream& serial, GfxRenderer& renderer, MappedInputManager& map
   if (cmd.startsWith("LS")) {
     String path = "/";
     if (cmd.startsWith("LS:")) {
-      path = cmd.substring(3);
+      path = ("/" + FsHelpers::normalisePath(cmd.substring(3).c_str())).c_str();
     }
     handleListFiles(serial, path);
     return true;
   }
 
   if (cmd.startsWith("DEL:")) {
-    String path = cmd.substring(4);
+    // Normalise and confine to the storage root, same as PUT, so a serial
+    // peer can't delete arbitrary files via ".." segments.
+    String path = ("/" + FsHelpers::normalisePath(cmd.substring(4).c_str())).c_str();
+    if (path.length() <= 1) {
+      serial.println("ERR:INVALID_ARGS");
+      return true;
+    }
     if (Storage.remove(path.c_str())) {
       serial.printf("OK:DELETED:%s\n", path.c_str());
     } else {

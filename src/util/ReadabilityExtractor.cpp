@@ -7,6 +7,12 @@
 
 namespace {
 
+// Ceiling on the HTML this parser will process. Real-world article pages can
+// run multi-hundred-KB; without a cap the raw html, the sanitized copy built
+// by cleanContent(), and the final plain-text output are all live on the heap
+// simultaneously, which a memory-constrained ESP32 can't sustain.
+constexpr size_t MAX_HTML_INPUT_BYTES = 262144;  // 256KB
+
 /**
  * Case-insensitive substring search over string_view.
  * Avoids any dynamic memory allocation or string duplication.
@@ -127,6 +133,8 @@ std::string ReadabilityExtractor::cleanContent(std::string_view html) {
 ReadabilityArticle ReadabilityExtractor::extract(std::string_view html) {
   ReadabilityArticle article;
   if (html.empty()) return article;
+
+  if (html.size() > MAX_HTML_INPUT_BYTES) html = html.substr(0, MAX_HTML_INPUT_BYTES);
 
   article.title = extractTitle(html);
   article.content = cleanContent(html);

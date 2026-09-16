@@ -30,7 +30,14 @@ constexpr const char* releaseUrls[] = {
 OtaUpdater::OtaUpdaterError OtaUpdater::checkForUpdate() {
   LOG_DBG("OTA", "Checking for update (current: %s)", CROSSPOINT_VERSION);
 
-  char primaryAsset[48] = "firmware-sticky.bin";
+  // Each board updates from its own release asset: plain firmware.bin for the
+  // C3 X4/X3 binary (pre-existing releases), firmware-<board>.bin otherwise.
+  const bool isX4 = board_tag::boardNameLen() == 2 && memcmp(board_tag::boardName(), "x4", 2) == 0;
+  char primaryAsset[48] = "firmware.bin";
+  if (!isX4) {
+    snprintf(primaryAsset, sizeof(primaryAsset), "firmware-%.*s.bin", static_cast<int>(board_tag::boardNameLen()),
+             board_tag::boardName());
+  }
   char fallbackAsset[48] = "firmware.bin";
 
   for (const char* url : releaseUrls) {

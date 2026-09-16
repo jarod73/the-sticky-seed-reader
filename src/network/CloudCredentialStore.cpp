@@ -1,7 +1,32 @@
 #include "CloudCredentialStore.h"
 
 #include <Logging.h>
+#include <ObfuscationUtils.h>
 #include <Preferences.h>
+
+namespace {
+// Generous ceiling for a token/API key; rejects a corrupted or hostile
+// decoded length before it gets allocated as a std::string.
+constexpr size_t MAX_SECRET_LENGTH = 512;
+
+// Reads an XOR+base64 obfuscated secret ("<key>_obf"), falling back to a
+// legacy plaintext "<key>" field so credentials written before obfuscation
+// was added still load; requests a resave (to upgrade them to obfuscated
+// storage) whenever the legacy fallback is used. Mirrors the pattern
+// WifiCredentialStore/extractPassword uses for the wifi password.
+std::string extractSecret(JsonVariantConst doc, const char* obfKey, const char* legacyKey, bool& needsResave) {
+  const char* obf = doc[obfKey] | "";
+  if (obf[0] != '\0') {
+    bool ok = false;
+    bool tooLong = false;
+    std::string value = obfuscation::deobfuscateFromBase64(obf, MAX_SECRET_LENGTH, &ok, &tooLong);
+    if (ok && !tooLong) return value;
+  }
+  const char* legacy = doc[legacyKey] | "";
+  if (legacy[0] != '\0') needsResave = true;
+  return legacy;
+}
+}  // namespace
 
 void CloudCredentialStore::syncToNvs() const {
   Preferences prefs;
@@ -61,16 +86,20 @@ bool CloudCredentialStore::loadFromFile() {
 }
 
 void CloudCredentialStore::toJson(JsonDocument& doc) const {
-  doc["notion_token"] = notionToken;
+  // Tokens/keys/passwords are XOR+base64 obfuscated with the device's
+  // hardware MAC before hitting the SD card or NVS, same as WifiCredentialStore
+  // -- plaintext here would hand over every connected cloud account to anyone
+  // who pulls the SD card.
+  doc["notion_token_obf"] = obfuscation::obfuscateToBase64(notionToken);
   doc["notion_db"] = notionDatabaseId;
-  doc["readwise_token"] = readwiseToken;
-  doc["todoist_token"] = todoistToken;
-  doc["gemini_key"] = geminiApiKey;
+  doc["readwise_token_obf"] = obfuscation::obfuscateToBase64(readwiseToken);
+  doc["todoist_token_obf"] = obfuscation::obfuscateToBase64(todoistToken);
+  doc["gemini_key_obf"] = obfuscation::obfuscateToBase64(geminiApiKey);
   doc["wallabag_url"] = wallabagUrl;
-  doc["wallabag_token"] = wallabagToken;
+  doc["wallabag_token_obf"] = obfuscation::obfuscateToBase64(wallabagToken);
   doc["webdav_url"] = webdavUrl;
   doc["webdav_user"] = webdavUser;
-  doc["webdav_pass"] = webdavPass;
+  doc["webdav_pass_obf"] = obfuscation::obfuscateToBase64(webdavPass);
   doc["rss_feed_url"] = rssFeedUrl;
   doc["weather_city"] = weatherCity;
   doc["weather_lat"] = weatherLat;
@@ -80,20 +109,23 @@ void CloudCredentialStore::toJson(JsonDocument& doc) const {
 bool CloudCredentialStore::fromJson(JsonVariantConst doc) {
   if (doc.isNull() || !doc.is<JsonObjectConst>()) return false;
 
-  notionToken = doc["notion_token"] | "";
+  bool needsResave = false;
+  notionToken = extractSecret(doc, "notion_token_obf", "notion_token", needsResave);
   notionDatabaseId = doc["notion_db"] | "";
-  readwiseToken = doc["readwise_token"] | "";
-  todoistToken = doc["todoist_token"] | "";
-  geminiApiKey = doc["gemini_key"] | "";
+  readwiseToken = extractSecret(doc, "readwise_token_obf", "readwise_token", needsResave);
+  todoistToken = extractSecret(doc, "todoist_token_obf", "todoist_token", needsResave);
+  geminiApiKey = extractSecret(doc, "gemini_key_obf", "gemini_key", needsResave);
   wallabagUrl = doc["wallabag_url"] | "";
-  wallabagToken = doc["wallabag_token"] | "";
+  wallabagToken = extractSecret(doc, "wallabag_token_obf", "wallabag_token", needsResave);
   webdavUrl = doc["webdav_url"] | "";
   webdavUser = doc["webdav_user"] | "";
-  webdavPass = doc["webdav_pass"] | "";
+  webdavPass = extractSecret(doc, "webdav_pass_obf", "webdav_pass", needsResave);
   rssFeedUrl = doc["rss_feed_url"] | "https://feeds.bbci.co.uk/news/rss.xml";
   weatherCity = doc["weather_city"] | "San Francisco";
   weatherLat = doc["weather_lat"] | 37.7749f;
   weatherLon = doc["weather_lon"] | -122.4194f;
+
+  if (needsResave) requestResave();
 
   return true;
 }

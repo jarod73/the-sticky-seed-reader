@@ -36,12 +36,14 @@ std::unique_ptr<ReaderActivity> ReaderActivity::create(GfxRenderer& renderer, Ma
   std::unique_ptr<ReaderActivity> activity;
   if (FsHelpers::hasXtcExtension(path)) {
     activity = makeUniqueNoThrow<XtcReaderActivity>(renderer, mappedInput, std::move(path), allowFastInitialRefresh);
+  } else if (FsHelpers::hasFb2Extension(path)) {
+    // Must be checked before hasCbzExtension: that one matches any bare
+    // ".zip" suffix, which would otherwise swallow ".fb2.zip" first.
+    activity = makeUniqueNoThrow<Fb2ReaderActivity>(renderer, mappedInput, std::move(path), allowFastInitialRefresh);
   } else if (FsHelpers::hasCbzExtension(path)) {
     activity = makeUniqueNoThrow<CbzReaderActivity>(renderer, mappedInput, std::move(path), allowFastInitialRefresh);
   } else if (FsHelpers::hasHtmlExtension(path)) {
     activity = makeUniqueNoThrow<HtmlReaderActivity>(renderer, mappedInput, std::move(path), allowFastInitialRefresh);
-  } else if (FsHelpers::hasFb2Extension(path)) {
-    activity = makeUniqueNoThrow<Fb2ReaderActivity>(renderer, mappedInput, std::move(path), allowFastInitialRefresh);
   } else if (FsHelpers::hasMobiExtension(path)) {
     activity = makeUniqueNoThrow<MobiReaderActivity>(renderer, mappedInput, std::move(path), allowFastInitialRefresh);
   } else if (FsHelpers::hasPdfExtension(path)) {

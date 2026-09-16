@@ -31,19 +31,22 @@ class HttpDownloader {
   static constexpr uint32_t MIN_TLS_MAX_ALLOC = 20000;
 
   /**
-   * Fetch text content from a URL with optional credentials.
+   * Fetch text content from a URL with optional credentials. Pass either
+   * username/password for preemptive Basic auth, or bearerToken (alone) for
+   * an "Authorization: Bearer <token>" header -- the two are mutually
+   * exclusive; bearerToken takes precedence if both are set.
    */
   static bool fetchUrl(const std::string& url, std::string& outContent, const std::string& username = "",
-                       const std::string& password = "");
+                       const std::string& password = "", const std::string& bearerToken = "");
 
   static bool fetchUrl(const std::string& url, Stream& stream, const std::string& username = "",
-                       const std::string& password = "");
+                       const std::string& password = "", const std::string& bearerToken = "");
 
   /**
    * Stream the response body to onData as it arrives, without buffering it.
    */
   static bool fetchUrl(const std::string& url, const DataCallback& onData, const std::string& username = "",
-                       const std::string& password = "");
+                       const std::string& password = "", const std::string& bearerToken = "");
 
   /**
    * Download a file to the SD card with optional credentials.

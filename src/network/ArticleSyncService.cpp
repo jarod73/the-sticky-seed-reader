@@ -26,8 +26,7 @@ bool ArticleSyncService::syncArticlesFromUrl(const std::string& endpointUrl, con
   LOG_INF("SYNC", "Syncing saved articles from: %s", endpointUrl.c_str());
 
   std::string response;
-  if (!HttpDownloader::fetchUrl(endpointUrl, response, apiToken.empty() ? "" : "bearer", apiToken) ||
-      response.empty()) {
+  if (!HttpDownloader::fetchUrl(endpointUrl, response, "", "", apiToken) || response.empty()) {
     result.message = "Failed to reach article sync endpoint";
     return false;
   }

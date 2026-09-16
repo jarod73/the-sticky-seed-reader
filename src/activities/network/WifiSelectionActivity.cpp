@@ -528,12 +528,11 @@ void WifiSelectionActivity::checkConnectionStatus() {
     }
 
     // Save this as the last connected network - SD card operations need lock as
-    // we use SPI for both
+    // we use SPI for both. The password itself is saved separately, only after
+    // the user confirms at the SAVE_PROMPT below (or immediately if it was
+    // already a saved/open network), so declining the prompt never persists it.
     {
       RenderLock lock(*this);
-      if (!enteredPassword.empty()) {
-        WIFI_STORE.addCredential(selectedSSID, enteredPassword);
-      }
       WIFI_STORE.setLastConnectedSsid(selectedSSID);
     }
 
