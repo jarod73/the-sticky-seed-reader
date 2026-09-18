@@ -113,12 +113,10 @@ void BleCompanionServer::setupGattServices() {
   NimBLEService* pService = bleServer_->createService(SERVICE_UUID);
 
   // TX Characteristic (Notify from device to companion app)
-  txCharacteristic_ =
-      pService->createCharacteristic(TX_CHAR_UUID, NIMBLE_PROPERTY::NOTIFY | NIMBLE_PROPERTY::READ);
+  txCharacteristic_ = pService->createCharacteristic(TX_CHAR_UUID, NIMBLE_PROPERTY::NOTIFY | NIMBLE_PROPERTY::READ);
 
   // RX Characteristic (Write from companion app to device)
-  rxCharacteristic_ = pService->createCharacteristic(
-      RX_CHAR_UUID, NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::WRITE_NR);
+  rxCharacteristic_ = pService->createCharacteristic(RX_CHAR_UUID, NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::WRITE_NR);
   rxCharacteristic_->setCallbacks(new BleCompanionRxCallbacks(*this));
 }
 

@@ -20,9 +20,8 @@ void BleCompanionActivity::onEnter() {
   logLines_.push_back("Server started. Listening for incoming connections...");
 
   BLE_COMPANION.begin(&mappedInput);
-  BLE_COMPANION.setEventCallback([this](const std::string& eventType, const std::string& detail) {
-    handleEvent(eventType, detail);
-  });
+  BLE_COMPANION.setEventCallback(
+      [this](const std::string& eventType, const std::string& detail) { handleEvent(eventType, detail); });
   BLE_COMPANION.startServer();
 
   requestUpdate();
